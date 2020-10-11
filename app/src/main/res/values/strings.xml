@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Kakuro</string>
+    <string name="playOnStagedBoard">Play on staged board</string>
+    <string name="playOnARandomBoard">Play on a generated board</string>
+    <string name="scanABoard">Scan a board to play on</string>
+    <string name="imageMainMenu">Kakuro logo</string>
 </resources>

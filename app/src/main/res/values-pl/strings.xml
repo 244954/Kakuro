@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kakuro</string>
+    <string name="playOnStagedBoard">Zagraj na gotowej planszy</string>
+    <string name="scanABoard">Zeskanuj planszę do rozgrywki</string>
+    <string name="playOnARandomBoard">Zagraj na wygenerowanej planszy</string>
+    <string name="imageMainMenu">Logo Kakuro</string>
+</resources>
