@@ -9,11 +9,24 @@ import android.view.View
 
 class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
-    private var boardSize = 9 // like a sudoku board for now
+    private var boardSize = 5 // test
     private var cellSizePixels = 0F
 
     private var selectedRow = -1
     private var selectedColumn = -1
+
+    private var kakuroBoardRaw : Array<Array<Int>> = arrayOf(
+        arrayOf(8, 2, 1 ,3, 0),
+        arrayOf(24, 4, 2, 1 ,0),
+        arrayOf(18, 4, 3, 1, 0),
+        arrayOf(9, 2, 4, 1, 0),
+        arrayOf(7, 3, 2, 1, 1),
+        arrayOf(23, 3, 2, 2, 1),
+        arrayOf(23, 3, 1, 3, 1),
+        arrayOf(6, 3, 1, 4, 1)
+    )
+
+    private var kakuroBoard = KakuroBoardModel(boardSize, kakuroBoardRaw)
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE

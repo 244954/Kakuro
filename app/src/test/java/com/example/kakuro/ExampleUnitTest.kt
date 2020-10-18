@@ -35,11 +35,44 @@ class ExampleUnitTest {
     }
     @Test
     fun kakuroBoardTest() {
-        val array1 = arrayOf(1, 2, 3)
-        val array2 = arrayOf(4, 5, 6)
+        val array1 = arrayOf(1, 2, 0, 1, 0)
+        val array2 = arrayOf(6, 2, 1, 0, 1)
         val myarr = arrayOf(array1, array2)
 
         val board = KakuroBoardModel(3, myarr)
-        assertEquals(board.board[0][0], null)
+        assertEquals(board.board[0][0]!!.essential, false)
+    }
+    @Test
+    fun abstractTest() {
+        val cell : KakuroCell
+        cell = KakuroCellHint(1, 1, 2 ,2)
+        assertEquals(cell.hintRight, 2)
+    }
+
+    @Test
+    fun castingTest() {
+        val cell : KakuroCell
+        cell = KakuroCellBlank(2, 2)
+        val cell2 = cell as? KakuroCellHint
+        cell2?.hintDown = 10
+        assertEquals(10, 10)
+    }
+
+    @Test
+    fun boardTest() {
+        val kakuroBoardRaw : Array<Array<Int>> = arrayOf(
+            arrayOf(8, 2, 1 ,3, 0),
+            arrayOf(24, 4, 2, 1 ,0),
+            arrayOf(18, 4, 3, 1, 0),
+            arrayOf(9, 2, 4, 1, 0),
+            arrayOf(7, 3, 2, 1, 1),
+            arrayOf(23, 3, 2, 2, 1),
+            arrayOf(23, 3, 1, 3, 1),
+            arrayOf(6, 3, 1, 4, 1)
+        )
+
+        val kakuroBoard = KakuroBoardModel(5, kakuroBoardRaw)
+        val kak = kakuroBoard.board[1][1] as? KakuroCellHint
+        assertEquals(kak!!.hintDown, 7)
     }
 }
