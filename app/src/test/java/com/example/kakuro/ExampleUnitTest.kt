@@ -1,5 +1,6 @@
 package com.example.kakuro
 
+import com.example.kakuro.gamelogic.*
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -45,7 +46,7 @@ class ExampleUnitTest {
     @Test
     fun abstractTest() {
         val cell : KakuroCell
-        cell = KakuroCellHint(1, 1, 2 ,2)
+        cell = KakuroCellHint(1, 1, 2, 2)
         assertEquals(cell.hintRight, 2)
     }
 

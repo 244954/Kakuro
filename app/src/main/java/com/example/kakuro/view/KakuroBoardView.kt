@@ -1,4 +1,4 @@
-package com.example.kakuro
+package com.example.kakuro.view
 
 import android.content.Context
 import android.graphics.Canvas
@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.example.kakuro.gamelogic.KakuroBoardModel
+import com.example.kakuro.R
 
 class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
@@ -15,6 +17,8 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
     private var selectedRow = -1
     private var selectedColumn = -1
+
+    private var listener: KakuroBoardView.OnTouchListener? = null
 
     private var kakuroBoardRaw : Array<Array<Int>> = arrayOf(
         arrayOf(8, 2, 1 ,3, 0),
@@ -88,8 +92,22 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     }
 
     private fun handleTouchEvent(x: Float, y: Float) {
-        selectedRow = (y / cellSizePixels).toInt()
-        selectedColumn = (x / cellSizePixels).toInt()
-        invalidate() // draw again
+        val playerSelectedRow = (y / cellSizePixels).toInt()
+        val playerSelectedCol = (x / cellSizePixels).toInt()
+        listener?.onCellTouched(playerSelectedRow, playerSelectedCol)
+    }
+
+    fun updateSelectedCellUI(row: Int, col: Int) {
+        selectedRow = row
+        selectedColumn = col
+        invalidate()
+    }
+
+    fun registerListener(listener: KakuroBoardView.OnTouchListener) {
+        this.listener = listener
+    }
+
+    interface OnTouchListener {
+        fun onCellTouched(row: Int, col: Int)
     }
 }

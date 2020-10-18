@@ -1,4 +1,4 @@
-package com.example.kakuro
+package com.example.kakuro.gamelogic
 
 abstract class KakuroCell(val row: Int,val column: Int) {
     abstract val essential: Boolean

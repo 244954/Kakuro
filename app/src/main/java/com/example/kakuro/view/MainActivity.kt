@@ -1,9 +1,10 @@
-package com.example.kakuro
+package com.example.kakuro.view
 
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.example.kakuro.R
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,7 +17,7 @@ class MainActivity : AppCompatActivity() {
         gotoboard()
     }
     fun gotoboard() {
-        val kakuroIntent = Intent(this, Kakuro_board::class.java)
+        val kakuroIntent = Intent(this, KakuroActivity::class.java)
         startActivity(kakuroIntent)
     }
 }

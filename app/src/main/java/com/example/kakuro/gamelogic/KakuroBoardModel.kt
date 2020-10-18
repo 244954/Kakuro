@@ -1,4 +1,4 @@
-package com.example.kakuro
+package com.example.kakuro.gamelogic
 
 /*
     [how much in a sum, how many cells, row, column, direction (0 - right, 1 - down)]
@@ -15,9 +15,9 @@ class KakuroBoardModel(val size: Int, values: Array<Array<Int>>) {
         for (i in values) {
             when (i[4]) {
                 0 -> { // goes to the right
-                    board[i[2]][i[3] - 1] = KakuroCellHint(i[2],i[3] - 1,i[0],0)
+                    board[i[2]][i[3] - 1] = KakuroCellHint(i[2], i[3] - 1, i[0], 0)
                     for ( x in 0 until i[1]) {
-                        board[i[2]][i[3] + x] = KakuroCellValue(i[2],i[3] + x, 0)
+                        board[i[2]][i[3] + x] = KakuroCellValue(i[2], i[3] + x, 0)
                     }
                 }
                 else -> { // goes down
@@ -28,10 +28,10 @@ class KakuroBoardModel(val size: Int, values: Array<Array<Int>>) {
                     }
                     else
                     {
-                        board[i[2] - 1][i[3]] = KakuroCellHint(i[2] - 1,i[3],0,i[0])
+                        board[i[2] - 1][i[3]] = KakuroCellHint(i[2] - 1, i[3], 0, i[0])
                     }
                     for ( x in 0 until i[1]) {
-                        board[i[2] + x][i[3]] = KakuroCellValue(i[2] + x,i[3], 0)
+                        board[i[2] + x][i[3]] = KakuroCellValue(i[2] + x, i[3], 0)
                     }
                 }
             }
