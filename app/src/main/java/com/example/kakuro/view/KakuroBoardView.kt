@@ -51,6 +51,11 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         textSize = 24F
     }
 
+    private val blankCellPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.parseColor("#bdc2c9")
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val sizePixels = Math.min(widthMeasureSpec, heightMeasureSpec)
@@ -62,8 +67,8 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         cellSizePixels = (width / boardSize).toFloat()
 
         fillCells(canvas)
-        drawLines(canvas)
         drawText(canvas)
+        drawLines(canvas)
     }
 
     private fun fillCells(canvas: Canvas?) {
@@ -79,8 +84,10 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     }
 
     private fun drawText(canvas: Canvas?) {
-        cells?.forEach { row->
-            row.forEach {
+        cells?.forEach { boardRow->
+            boardRow.forEach {
+                val row = it!!.row
+                val col = it!!.column
                 when (it) {
                     is KakuroCellValue -> {
                         val cell = it as KakuroCellValue
@@ -91,14 +98,15 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                         val textWidth = textPaint.measureText(stringValue)
                         val textHeight = textBounds.height()
 
-                        canvas?.drawText(stringValue, (it.column * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
-                            (it.row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, textPaint)
+                        canvas?.drawText(stringValue, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
+                            (row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, textPaint)
                     }
                     is KakuroCellBlank -> {
-
+                        canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)
                     }
                     is KakuroCellHint -> {
-
+                        canvas?.drawLine(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, thinLinePaint)
+                        // jeszcze numerki
                     }
                 }
             }
