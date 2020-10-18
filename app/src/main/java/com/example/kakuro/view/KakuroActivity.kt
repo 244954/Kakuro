@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.example.kakuro.R
+import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.viewmodel.KakuroViewModel
 import kotlinx.android.synthetic.main.activity_kakuro_board.*
 
@@ -21,6 +22,11 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
         viewModel = ViewModelProviders.of(this).get(KakuroViewModel::class.java)
         viewModel.kakuroGame.selectedCellLiveData.observe(this, Observer { updateSelectedCellUI(it)  })
+        viewModel.kakuroGame.cellsLiveData.observe(this, Observer { updateCells(it) })
+    }
+
+    private fun updateCells(cells: Array<Array<KakuroCell?>>?) = cells?.let {
+        kakuroBoard.updateCells(cells)
     }
 
     private fun updateSelectedCellUI(cell: Pair<Int, Int>?) = cell?.let {

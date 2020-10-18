@@ -4,11 +4,12 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import com.example.kakuro.gamelogic.KakuroBoardModel
 import com.example.kakuro.R
+import com.example.kakuro.gamelogic.*
 
 class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 
@@ -18,20 +19,9 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     private var selectedRow = -1
     private var selectedColumn = -1
 
+    private var cells: Array<Array<KakuroCell?>>? = null
+
     private var listener: KakuroBoardView.OnTouchListener? = null
-
-    private var kakuroBoardRaw : Array<Array<Int>> = arrayOf(
-        arrayOf(8, 2, 1 ,3, 0),
-        arrayOf(24, 4, 2, 1 ,0),
-        arrayOf(18, 4, 3, 1, 0),
-        arrayOf(9, 2, 4, 1, 0),
-        arrayOf(7, 3, 2, 1, 1),
-        arrayOf(23, 3, 2, 2, 1),
-        arrayOf(23, 3, 1, 3, 1),
-        arrayOf(6, 3, 1, 4, 1)
-    )
-
-    private var kakuroBoard = KakuroBoardModel(boardSize, kakuroBoardRaw)
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
@@ -55,6 +45,12 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         color = Color.parseColor(resources.getString(R.string.errorCellColor))
     }
 
+    private val textPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.BLACK
+        textSize = 24F
+    }
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val sizePixels = Math.min(widthMeasureSpec, heightMeasureSpec)
@@ -67,6 +63,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
         fillCells(canvas)
         drawLines(canvas)
+        drawText(canvas)
     }
 
     private fun fillCells(canvas: Canvas?) {
@@ -78,6 +75,33 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         for (i in 1 until boardSize) {
             canvas?.drawLine(0F, i * cellSizePixels, width.toFloat(), i * cellSizePixels, thinLinePaint)
             canvas?.drawLine(i * cellSizePixels, 0F, i * cellSizePixels, height.toFloat(), thinLinePaint)
+        }
+    }
+
+    private fun drawText(canvas: Canvas?) {
+        cells?.forEach { row->
+            row.forEach {
+                when (it) {
+                    is KakuroCellValue -> {
+                        val cell = it as KakuroCellValue
+                        val stringValue = cell.value.toString()
+
+                        val textBounds = Rect()
+                        textPaint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
+                        val textWidth = textPaint.measureText(stringValue)
+                        val textHeight = textBounds.height()
+
+                        canvas?.drawText(stringValue, (it.column * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
+                            (it.row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, textPaint)
+                    }
+                    is KakuroCellBlank -> {
+
+                    }
+                    is KakuroCellHint -> {
+
+                    }
+                }
+            }
         }
     }
 
@@ -100,6 +124,11 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     fun updateSelectedCellUI(row: Int, col: Int) {
         selectedRow = row
         selectedColumn = col
+        invalidate()
+    }
+
+    fun updateCells(cells: Array<Array<KakuroCell?>>) {
+        this.cells = cells
         invalidate()
     }
 

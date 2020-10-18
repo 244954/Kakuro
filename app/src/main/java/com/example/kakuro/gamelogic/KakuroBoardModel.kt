@@ -42,4 +42,18 @@ class KakuroBoardModel(val size: Int, values: Array<Array<Int>>) {
             }
         }
     }
+
+    fun getCell(row: Int, col: Int) : KakuroCell? {
+        /*
+        if (board[row][col] is KakuroCellValue)
+        {
+            return board[row][col] as KakuroCellValue
+        }
+        return null
+        */
+        return if (row in 0 until size && col in 0 until size)
+            board[row][col]!!
+        else
+            null
+    }
 }
