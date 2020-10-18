@@ -4,4 +4,6 @@
     <string name="playOnARandomBoard">Play on a generated board</string>
     <string name="scanABoard">Scan a board to play on</string>
     <string name="imageMainMenu">Kakuro logo</string>
+    <string name="selectedCellColor" translatable="false">#56b867</string>
+    <string name="errorCellColor" translatable="false">#eb6652</string>
 </resources>
