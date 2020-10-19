@@ -23,6 +23,14 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
         viewModel = ViewModelProviders.of(this).get(KakuroViewModel::class.java)
         viewModel.kakuroGame.selectedCellLiveData.observe(this, Observer { updateSelectedCellUI(it)  })
         viewModel.kakuroGame.cellsLiveData.observe(this, Observer { updateCells(it) })
+
+        val buttons = listOf(buttonOne, buttonTwo, buttonThree, buttonFour, buttonFive,
+            buttonSix, buttonSeven, buttonEight, buttonNine)
+        buttons.forEachIndexed { index, button ->
+            button.setOnClickListener {
+                viewModel.kakuroGame.handleInput(index + 1) // index starts from 0
+            }
+        }
     }
 
     private fun updateCells(cells: Array<Array<KakuroCell?>>?) = cells?.let {

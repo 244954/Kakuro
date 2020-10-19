@@ -53,7 +53,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
     private val blankCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#bdc2c9")
+        color = Color.parseColor("#000308")
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -105,6 +105,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                         canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)
                     }
                     is KakuroCellHint -> {
+                        canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)
                         canvas?.drawLine(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, thinLinePaint)
                         // jeszcze numerki
                     }
