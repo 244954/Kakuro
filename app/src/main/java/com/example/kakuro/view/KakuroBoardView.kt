@@ -97,15 +97,19 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                 when (it) {
                     is KakuroCellValue -> {
                         val cell = it as KakuroCellValue
-                        val stringValue = cell.value.toString()
+                        if ( cell.value != 0) { // don't print zeros
+                            val stringValue = cell.value.toString()
 
-                        val textBounds = Rect()
-                        textPaint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
-                        val textWidth = textPaint.measureText(stringValue)
-                        val textHeight = textBounds.height()
+                            val textBounds = Rect()
+                            textPaint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
+                            val textWidth = textPaint.measureText(stringValue)
+                            val textHeight = textBounds.height()
 
-                        canvas?.drawText(stringValue, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
-                            (row * cellSizePixels) + cellSizePixels / 2 + textHeight / 2, textPaint)
+                            canvas?.drawText(
+                                stringValue, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
+                                (row * cellSizePixels) + cellSizePixels / 2 + textHeight / 2, textPaint
+                            )
+                        }
                     }
                     is KakuroCellBlank -> {
                         canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)

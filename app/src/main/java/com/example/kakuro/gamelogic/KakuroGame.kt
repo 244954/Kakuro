@@ -34,7 +34,12 @@ class KakuroGame {
         if ( selectedRow == -1 || selectedCol == -1) return
 
         val cell = board.getCell(selectedRow, selectedCol) as KakuroCellValue
-        cell.value = number
+        if ( cell.value == number) {
+            cell.value = 0
+        }
+        else {
+            cell.value = number
+        }
         // board.getCell(selectedRow, selectedCol)?.value = number
         cellsLiveData.postValue(board.board)
 
