@@ -51,6 +51,12 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         textSize = 84F
     }
 
+    private val textPaintError = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.RED
+        textSize = 84F
+    }
+
     private val littleTextPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
         color = Color.parseColor("#77787a")
@@ -98,16 +104,21 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                     is KakuroCellValue -> {
                         val cell = it as KakuroCellValue
                         if ( cell.value != 0) { // don't print zeros
+                            val paint : Paint = if (cell.wrongCol || cell.wrongRow) {
+                                textPaintError
+                            } else {
+                                textPaint
+                            }
                             val stringValue = cell.value.toString()
 
                             val textBounds = Rect()
-                            textPaint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
+                            paint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
                             val textWidth = textPaint.measureText(stringValue)
                             val textHeight = textBounds.height()
 
                             canvas?.drawText(
                                 stringValue, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
-                                (row * cellSizePixels) + cellSizePixels / 2 + textHeight / 2, textPaint
+                                (row * cellSizePixels) + cellSizePixels / 2 + textHeight / 2, paint
                             )
                         }
                     }

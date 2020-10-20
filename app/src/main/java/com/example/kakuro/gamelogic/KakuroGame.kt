@@ -40,7 +40,7 @@ class KakuroGame {
         else {
             cell.value = number
         }
-        // board.getCell(selectedRow, selectedCol)?.value = number
+        updateValidation(selectedRow, selectedCol, board)
         cellsLiveData.postValue(board.board)
 
     }
@@ -56,5 +56,76 @@ class KakuroGame {
             selectedCol = -1
         }
         selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
+    }
+
+    private fun updateValidation(row: Int, col: Int, board: KakuroBoardModel) {
+        updateRow(row, col, board)
+        updateCol(row, col, board)
+    }
+
+    private fun updateRow(row: Int, col: Int, board: KakuroBoardModel) {
+        val rowHint = board.getRowHint(row, col)?.hintRight
+        val rowItems = board.getRow(row, col)
+        var sum = 0
+        for (i in rowItems) {
+            if (i.value == 0) {
+                rowItems.forEach {
+                    it.wrongRow = false
+                }
+                return
+            }
+            sum += i.value
+        }
+        if (sum != rowHint) {
+            rowItems.forEach {
+                it.wrongRow = true
+            }
+        }
+        else {
+            val values = rowItems.map { it.value }
+            if (values.distinct().size != values.size) {
+                rowItems.forEach {
+                    it.wrongRow = true
+                }
+            }
+            else {
+                rowItems.forEach {
+                    it.wrongRow = false
+                }
+            }
+        }
+    }
+
+    private fun updateCol(row: Int, col: Int, board: KakuroBoardModel) {
+        val colHint = board.getColumnHint(row, col)?.hintDown
+        val colItems = board.getColumn(row, col)
+        var sum = 0
+        for (i in colItems) {
+            if (i.value == 0) {
+                colItems.forEach {
+                    it.wrongCol = false
+                }
+                return
+            }
+            sum += i.value
+        }
+        if (sum != colHint) {
+            colItems.forEach {
+                it.wrongCol = true
+            }
+        }
+        else {
+            val values = colItems.map { it.value }
+            if (values.distinct().size != values.size) {
+                colItems.forEach {
+                    it.wrongCol = true
+                }
+            }
+            else {
+                colItems.forEach {
+                    it.wrongCol = false
+                }
+            }
+        }
     }
 }

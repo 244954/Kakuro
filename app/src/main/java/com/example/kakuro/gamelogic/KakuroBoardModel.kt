@@ -56,4 +56,94 @@ class KakuroBoardModel(val size: Int, values: Array<Array<Int>>) {
         else
             null
     }
+
+    fun getRow(row: Int, col: Int) : ArrayList<KakuroCellValue> {
+
+        val cells = ArrayList<KakuroCellValue>()
+
+        if (row in 0 until size && col in 0 until size) {
+            val cell = board[row][col]!!
+            if (cell is KakuroCellValue) {
+
+                cells.add(cell)
+                var currCol = col - 1
+
+                while (currCol > 0 && board[row][currCol] is KakuroCellValue) {
+                    cells.add(board[row][currCol]!! as KakuroCellValue)
+                    currCol -= 1
+                }
+
+                currCol = col + 1
+
+                while (currCol < size && board[row][currCol] is KakuroCellValue) {
+                    cells.add(board[row][currCol]!! as KakuroCellValue)
+                    currCol += 1
+                }
+            }
+        }
+        return cells
+    }
+
+    fun getColumn(row: Int, col: Int) : ArrayList<KakuroCellValue> {
+
+        val cells = ArrayList<KakuroCellValue>()
+
+        if (row in 0 until size && col in 0 until size) {
+            val cell = board[row][col]!!
+            if (cell is KakuroCellValue) {
+
+                cells.add(cell)
+                var currRow = row - 1
+
+                while (currRow > 0 && board[currRow][col] is KakuroCellValue) {
+                    cells.add(board[currRow][col]!! as KakuroCellValue)
+                    currRow -= 1
+                }
+
+                currRow = row + 1
+
+                while (currRow < size && board[currRow][col] is KakuroCellValue) {
+                    cells.add(board[currRow][col]!! as KakuroCellValue)
+                    currRow += 1
+                }
+            }
+        }
+        return cells
+    }
+
+    fun getRowHint(row: Int, col: Int) : KakuroCellHint? {
+        if (row in 0 until size && col in 0 until size) {
+            var cell = board[row][col]!!
+            if (cell is KakuroCellValue) {
+                var currCol = col - 1
+
+                while (currCol >= 0) {
+                    cell = board[row][currCol]!!
+                    if (cell is KakuroCellHint) {
+                        return cell
+                    }
+                    currCol -= 1
+                }
+            }
+        }
+        return null
+    }
+
+    fun getColumnHint(row: Int, col: Int) : KakuroCellHint? {
+        if (row in 0 until size && col in 0 until size) {
+            var cell = board[row][col]!!
+            if (cell is KakuroCellValue) {
+                var currRow = row - 1
+
+                while (currRow >= 0) {
+                    cell = board[currRow][col]!!
+                    if (cell is KakuroCellHint) {
+                        return cell
+                    }
+                    currRow -= 1
+                }
+            }
+        }
+        return null
+    }
 }
