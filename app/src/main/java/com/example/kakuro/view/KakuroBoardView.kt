@@ -31,7 +31,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
     private val thinLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.DKGRAY
+        color = Color.parseColor("#77787a")
         strokeWidth = 3F
     }
 
@@ -48,7 +48,13 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     private val textPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
         color = Color.BLACK
-        textSize = 24F
+        textSize = 84F
+    }
+
+    private val littleTextPaint = Paint().apply {
+        style = Paint.Style.FILL_AND_STROKE
+        color = Color.parseColor("#77787a")
+        textSize = 64F
     }
 
     private val blankCellPaint = Paint().apply {
@@ -99,7 +105,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                         val textHeight = textBounds.height()
 
                         canvas?.drawText(stringValue, (col * cellSizePixels) + cellSizePixels / 2 - textWidth / 2,
-                            (row * cellSizePixels) + cellSizePixels / 2 - textHeight / 2, textPaint)
+                            (row * cellSizePixels) + cellSizePixels / 2 + textHeight / 2, textPaint)
                     }
                     is KakuroCellBlank -> {
                         canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)
@@ -108,6 +114,26 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                         canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)
                         canvas?.drawLine(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, thinLinePaint)
                         // jeszcze numerki
+                        if (it.hintDown != 0) {
+                            val stringValue = it.hintDown.toString()
+
+                            val textBounds = Rect()
+                            littleTextPaint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
+                            val textWidth = textPaint.measureText(stringValue)
+                            val textHeight = textBounds.height()
+                            canvas?.drawText(stringValue, (col * cellSizePixels) + cellSizePixels / 4 - textWidth / 2,
+                                (row * cellSizePixels) + cellSizePixels * 3 / 4 + textHeight / 2, littleTextPaint)
+                        }
+                        if (it.hintRight != 0) {
+                            val stringValue = it.hintRight.toString()
+
+                            val textBounds = Rect()
+                            littleTextPaint.getTextBounds(stringValue, 0, stringValue.length, textBounds)
+                            val textWidth = textPaint.measureText(stringValue)
+                            val textHeight = textBounds.height()
+                            canvas?.drawText(stringValue, (col * cellSizePixels) + cellSizePixels * 3 / 4 - textWidth / 2,
+                                (row * cellSizePixels) + cellSizePixels / 4 + textHeight / 2, littleTextPaint)
+                        }
                     }
                 }
             }
