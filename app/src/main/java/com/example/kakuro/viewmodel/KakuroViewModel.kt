@@ -4,5 +4,10 @@ import android.arch.lifecycle.ViewModel
 import com.example.kakuro.gamelogic.KakuroGame
 
 class KakuroViewModel : ViewModel() {
-    val kakuroGame = KakuroGame()
+    lateinit var kakuroGame : KakuroGame
+
+    fun startViewModel(size: Int, board: Array<Array<Int>>) {
+        // seems suspect, but works just fine. Doing it in init would require some extra work
+        kakuroGame = KakuroGame(size, board)
+    }
 }

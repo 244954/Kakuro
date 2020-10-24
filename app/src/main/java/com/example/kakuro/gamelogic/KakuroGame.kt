@@ -2,7 +2,7 @@ package com.example.kakuro.gamelogic
 
 import android.arch.lifecycle.MutableLiveData
 
-class KakuroGame {
+class KakuroGame(size: Int, values: Array<Array<Int>>) {
 
     var selectedCellLiveData = MutableLiveData<Pair<Int, Int>>()
     var cellsLiveData = MutableLiveData<Array<Array<KakuroCell?>>>()
@@ -10,22 +10,9 @@ class KakuroGame {
     private var selectedRow = -1
     private var selectedCol = -1
 
-    private var board: KakuroBoardModel
+    private var board: KakuroBoardModel = KakuroBoardModel(size, values)
 
     init {
-        var kakuroBoardRaw : Array<Array<Int>> = arrayOf(
-            arrayOf(8, 2, 1 ,3, 0),
-            arrayOf(24, 4, 2, 1 ,0),
-            arrayOf(18, 4, 3, 1, 0),
-            arrayOf(9, 2, 4, 1, 0),
-            arrayOf(7, 3, 2, 1, 1),
-            arrayOf(23, 3, 2, 2, 1),
-            arrayOf(23, 3, 1, 3, 1),
-            arrayOf(6, 3, 1, 4, 1)
-        )
-
-        board = KakuroBoardModel(5, kakuroBoardRaw)
-
         selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
         cellsLiveData.postValue(board.board)
     }

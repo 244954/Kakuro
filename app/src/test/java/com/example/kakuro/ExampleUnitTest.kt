@@ -103,4 +103,11 @@ class ExampleUnitTest {
         val arr = arrayListOf<KakuroCellValue>(KakuroCellValue(1, 1, 2), KakuroCellValue(1, 1, 3))
         assertEquals(arr.map { it.value }, arrayListOf(2, 3))
     }
+
+    @Test
+    fun testArrays() {
+        val arr = Array(3){Array(5){0}}
+        arr[2][4] = 2
+        assertEquals(arr[2][4], 2)
+    }
 }
