@@ -8,6 +8,8 @@ class KakuroViewModel : ViewModel() {
 
     fun startViewModel(size: Int, board: Array<Array<Int>>) {
         // seems suspect, but works just fine. Doing it in init would require some extra work
-        kakuroGame = KakuroGame(size, board)
+        if (!this::kakuroGame.isInitialized) {
+            kakuroGame = KakuroGame(size, board)
+        }
     }
 }

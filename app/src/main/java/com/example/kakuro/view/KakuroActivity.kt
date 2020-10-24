@@ -27,8 +27,9 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
         val b = intent.extras
         val boardNumber = b?.getInt("board")
-        val boardValues = getBoardFromFile(boardNumber!!) // changes here are imminent
-        // take a parameter from intent creation
+        val boardValues = getBoardFromFile(boardNumber!!)
+
+        kakuroBoard.setSize(size) // set size for Kakuro View
 
         viewModel = ViewModelProviders.of(this).get(KakuroViewModel::class.java)
         viewModel.startViewModel(size, boardValues)

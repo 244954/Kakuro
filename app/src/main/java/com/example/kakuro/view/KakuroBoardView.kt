@@ -171,6 +171,16 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         listener?.onCellTouched(playerSelectedRow, playerSelectedCol)
     }
 
+    fun setSize(newSize: Int) {
+        boardSize = newSize
+
+        // change text sizes accordingly!
+
+        littleTextPaint.textSize = 300F / newSize.toFloat() //60 for 5x5
+        textPaint.textSize = 400F / newSize.toFloat() // 80 for 5x5
+        textPaintError.textSize = 400F / newSize.toFloat()
+    }
+
     fun updateSelectedCellUI(row: Int, col: Int) {
         selectedRow = row
         selectedColumn = col
