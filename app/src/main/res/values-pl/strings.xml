@@ -5,4 +5,12 @@
     <string name="scanABoard">Zeskanuj planszę do rozgrywki</string>
     <string name="playOnARandomBoard">Zagraj na wygenerowanej planszy</string>
     <string name="imageMainMenu">Logo Kakuro</string>
+    <string name="largeKakuros">Duże Plansze</string>
+    <string name="smallKakuros">Małe Plansze</string>
+    <string name="mediumKakuros">Średnie Plansze</string>
+    <string name="board3">Plansza 3</string>
+    <string name="board4">Plansza 4</string>
+    <string name="board5">Plansza 5</string>
+    <string name="board6">Plansza 6</string>
+    <string name="board7">Plansza 7</string>
 </resources>

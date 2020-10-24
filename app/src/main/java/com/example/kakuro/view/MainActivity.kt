@@ -14,10 +14,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onclickbuttonstaged(v: View) {
-        gotoboard()
+        goToSelect()
     }
-    fun gotoboard() {
-        val kakuroIntent = Intent(this, KakuroActivity::class.java)
+    fun goToSelect() {
+        val kakuroIntent = Intent(this, SelectBoardActivity::class.java)
         startActivity(kakuroIntent)
     }
 }

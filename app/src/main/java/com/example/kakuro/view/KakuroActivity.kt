@@ -5,6 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import com.example.kakuro.R
 import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.viewmodel.KakuroViewModel
@@ -24,7 +25,9 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
         kakuroBoard.registerListener(this) // i implement the interface
 
-        val boardValues = getBoardFromFile(3) // changes here are imminent
+        val b = intent.extras
+        val boardNumber = b?.getInt("board")
+        val boardValues = getBoardFromFile(boardNumber!!) // changes here are imminent
         // take a parameter from intent creation
 
         viewModel = ViewModelProviders.of(this).get(KakuroViewModel::class.java)
@@ -39,6 +42,15 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
                 viewModel.kakuroGame.handleInput(index + 1) // index starts from 0
             }
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        val id = item?.itemId
+        if (id==android.R.id.home) {
+            finish()
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun getBoardFromFile(nr: Int) : Array<Array<Int>> {

@@ -6,4 +6,12 @@
     <string name="imageMainMenu">Kakuro logo</string>
     <string name="selectedCellColor" translatable="false">#56b867</string>
     <string name="errorCellColor" translatable="false">#eb6652</string>
+    <string name="smallKakuros">Small Boards</string>
+    <string name="mediumKakuros">Medium Boards</string>
+    <string name="largeKakuros">Large Boards</string>
+    <string name="board3">Board 3</string>
+    <string name="board4">Board 4</string>
+    <string name="board5">Board 5</string>
+    <string name="board6">Board 6</string>
+    <string name="board7">Board 7</string>
 </resources>
