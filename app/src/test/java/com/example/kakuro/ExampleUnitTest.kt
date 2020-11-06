@@ -110,4 +110,10 @@ class ExampleUnitTest {
         arr[2][4] = 2
         assertEquals(arr[2][4], 2)
     }
+
+    @Test
+    fun combinationsTest() {
+        val solutions = KakuroSolver.calcCombinations(28, 4)
+        assertEquals(solutions.size, 2)
+    }
 }
