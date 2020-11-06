@@ -116,4 +116,50 @@ class ExampleUnitTest {
         val solutions = KakuroSolver.calcCombinations(28, 4)
         assertEquals(solutions.size, 2)
     }
+
+    @Test
+    fun mergeTest() {
+        val sols = KakuroSolver.mergeCombinations(arrayListOf(arrayOf(1, 4), arrayOf(2, 3)), arrayListOf(arrayOf(1, 5), arrayOf(2, 4)))
+        assertEquals(sols.size, 3)
+    }
+
+    @Test
+    fun possibleCombinationsTest() {
+        val kakuroBoardRaw : Array<Array<Int>> = arrayOf(
+            arrayOf(8, 2, 1 ,3, 0),
+            arrayOf(24, 4, 2, 1 ,0),
+            arrayOf(18, 4, 3, 1, 0),
+            arrayOf(9, 2, 4, 1, 0),
+            arrayOf(7, 3, 2, 1, 1),
+            arrayOf(23, 3, 2, 2, 1),
+            arrayOf(23, 3, 1, 3, 1),
+            arrayOf(6, 3, 1, 4, 1)
+        )
+
+        val kakuroBoard = KakuroBoardModel(5, kakuroBoardRaw)
+        val kakuroSolver = KakuroSolver(kakuroBoard)
+        val possibles = kakuroSolver.getPossibleValues(4, 2)
+
+        assertEquals(possibles.size, 2)
+    }
+
+    @Test
+    fun solvingTest() {
+        val kakuroBoardRaw : Array<Array<Int>> = arrayOf(
+            arrayOf(8, 2, 1 ,3, 0),
+            arrayOf(24, 4, 2, 1 ,0),
+            arrayOf(18, 4, 3, 1, 0),
+            arrayOf(9, 2, 4, 1, 0),
+            arrayOf(7, 3, 2, 1, 1),
+            arrayOf(23, 3, 2, 2, 1),
+            arrayOf(23, 3, 1, 3, 1),
+            arrayOf(6, 3, 1, 4, 1)
+        )
+
+        val kakuroBoard = KakuroBoardModel(5, kakuroBoardRaw)
+        val kakuroSolver = KakuroSolver(kakuroBoard)
+        kakuroSolver.solveTrivial()
+        assertEquals((kakuroBoard.board[1][3] as KakuroCellValue).value, 6)
+        assertEquals((kakuroBoard.board[1][4] as KakuroCellValue).value, 2)
+    }
 }

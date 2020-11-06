@@ -1,51 +1,12 @@
 package com.example.kakuro.gamelogic
 
-class KakuroSolver(model: KakuroBoardModel) {
+class KakuroSolver(private val model: KakuroBoardModel) {
 
     private val size = model.size
     private val board = model.board // shortcuts
-
-    // Pair(number in hint, length of hint) -> possible number in row/column
-    private val dict = mapOf<Pair<Int,Int>,Array<Array<Int>>>(
-        Pair(3, 2) to arrayOf(arrayOf(1, 2)),
-        Pair(4, 2) to arrayOf(arrayOf(1, 3)),
-        Pair(5, 2) to arrayOf(arrayOf(1, 4), arrayOf(2, 3))
-                /*
-        Pair(6, 2) to arrayOf(1, 2, 4, 5),
-        Pair(7, 2) to arrayOf(1, 2, 3, 4, 5, 6),
-        Pair(8, 2) to arrayOf(1, 2, 3, 5, 6 ,7),
-        Pair(9, 2) to arrayOf(1, 2, 3, 4, 5, 6, 7, 8),
-        Pair(10, 2) to arrayOf(1, 2, 3, 4, 6, 7, 8, 9),
-        Pair(11, 2) to arrayOf(2, 3, 4, 5, 6, 7, 8, 9),
-        Pair(12, 2) to arrayOf(3, 4, 5, 7, 8, 9),
-        Pair(13, 2) to arrayOf(4, 5, 6, 7, 8, 9),
-        Pair(14, 2) to arrayOf(5, 6, 8, 9),
-        Pair(15, 2) to arrayOf(6, 7, 8, 9),
-        Pair(16, 2) to arrayOf(7, 9),
-        Pair(17, 2) to arrayOf(8, 9),
-
-        Pair(6, 3) to arrayOf(1, 2, 3),
-        Pair(7, 3) to arrayOf(1, 2, 4),
-        Pair(8, 3) to arrayOf(1, 2, 3, 4, 5),
-        Pair(9, 3) to arrayOf(1, 2, 3, 4, 5, 6),
-        Pair(10, 3) to arrayOf(1, 2, 3, 4, 6, 7),
-        Pair(11, 3) to arrayOf(2, 3, 4, 5, 6, 7, 8, 9),
-        Pair(12, 3) to arrayOf(3, 4, 5, 7, 8, 9),
-        Pair(13, 3) to arrayOf(4, 5, 6, 7, 8, 9),
-        Pair(14, 3) to arrayOf(5, 6, 8, 9),
-        Pair(15, 3) to arrayOf(6, 7, 8, 9),
-        Pair(16, 3) to arrayOf(7, 9),
-        Pair(17, 3) to arrayOf(8, 9) */
-    )
-
-    fun solveTrivial() {
-        for (row in 0 until size) {
-            for (col in 0 until size) {
-                val cell = board[row][col]
-                if (cell is KakuroCellValue) {
-
-                }
-            }
+    private val posBoard: Array<Array<ArrayList<Int>>> = Array(size) {
+        Array(size) {
+            ArrayList<Int>()
         }
     }
 
@@ -90,12 +51,65 @@ class KakuroSolver(model: KakuroBoardModel) {
             }
         }
 
+        fun mergeCombinations(arr1: ArrayList<Array<Int>>, arr2: ArrayList<Array<Int>>): Array<Int> {
+            var combinations = Array<Int>(0) { 0 }
+            var combinations2 = Array<Int>(0) { 0 }
+
+            for (i in arr1) {
+                combinations = combinations.union(i.toSet()).toTypedArray()
+            }
+
+            for (i in arr2) {
+                combinations2 = combinations2.union(i.toSet()).toTypedArray()
+            }
+
+            return combinations.intersect(combinations2.toSet()).toTypedArray()
+        }
+    }
+
+    fun solveTrivial() {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = board[row][col]
+                if (cell is KakuroCellValue && cell.value == 0) {
+                    val pos = getPossibleValues(row, col)
+                    posBoard[row][col] = pos
+                    if (pos.size == 1) {
+                        cell.value = pos[0]
+                    }
+                }
+            }
+        }
     }
 
     fun getPossibleValues(row: Int, col: Int): ArrayList<Int> {
-        val possibles = ArrayList<Int>()
+        var possibles = ArrayList<Int>()
+        val wholeRow = model.getRow(row, col)
+        val wholeCol = model.getColumn(row, col)
+        val rowHint = model.getRowHint(row, col)
+        val colHint = model.getColumnHint(row, col)
 
+        val rowCombinations = calcCombinations(rowHint!!.hintRight,wholeRow.size)
+        for(i in wholeRow) {
+            if (i.value != 0) {
+                rowCombinations.removeIf { j -> !j.contains(i.value)}
+            }
+        }
+        val colCombinations = calcCombinations(colHint!!.hintDown,wholeCol.size)
+        for(i in wholeCol) {
+            if (i.value != 0) {
+                colCombinations.removeIf { j -> !j.contains(i.value) }
+            }
+        }
 
+        val combinations = mergeCombinations(rowCombinations, colCombinations)
+        possibles = combinations.toCollection(ArrayList())
+        for(i in wholeRow) {
+            possibles.remove(i.value)
+        }
+        for(i in wholeCol) {
+            possibles.remove(i.value)
+        }
 
         return possibles
     }
