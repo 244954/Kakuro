@@ -1,5 +1,7 @@
 package com.example.kakuro.gamelogic
 
+import org.chocosolver.solver.Model
+
 class KakuroSolver(private val model: KakuroBoardModel) {
 
     private val size = model.size
@@ -68,14 +70,21 @@ class KakuroSolver(private val model: KakuroBoardModel) {
     }
 
     fun solveTrivial() {
-        for (row in 0 until size) {
-            for (col in 0 until size) {
-                val cell = board[row][col]
-                if (cell is KakuroCellValue && cell.value == 0) {
-                    val pos = getPossibleValues(row, col)
-                    posBoard[row][col] = pos
-                    if (pos.size == 1) {
-                        cell.value = pos[0]
+        val model = Model("Kakuro Constraint Problem")
+
+        var newSolution = -1
+        while (newSolution != 0) {
+            newSolution = 0
+            for (row in 0 until size) {
+                for (col in 0 until size) {
+                    val cell = board[row][col]
+                    if (cell is KakuroCellValue && cell.value == 0) {
+                        val pos = getPossibleValues(row, col)
+                        posBoard[row][col] = pos
+                        if (pos.size == 1) {
+                            cell.value = pos[0]
+                            newSolution ++
+                        }
                     }
                 }
             }
