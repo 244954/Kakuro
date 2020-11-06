@@ -111,6 +111,40 @@ class KakuroBoardModel(val size: Int, values: Array<Array<Int>>) {
         return cells
     }
 
+    fun getAllRowsAndCols(): ArrayList<ArrayList<Pair<Int, Int>>> { // array of all hint coordinates, first is always a pair of <hint,hint>
+        val coords = ArrayList<ArrayList<Pair<Int, Int>>>()
+
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cel = board[row][col]
+                if (cel is KakuroCellHint) {
+                    if (cel.hintDown != 0) {
+                        var newRow = row + 1
+                        val newElem = ArrayList<Pair<Int, Int>>()
+                        newElem.add(Pair(cel.hintDown, cel.hintDown))
+                        while (newRow < size && board[newRow][col] is KakuroCellValue) {
+                            newElem.add(Pair(newRow, col))
+                            newRow ++
+                        }
+                        coords.add(newElem)
+                    }
+                    if (cel.hintRight != 0) {
+                        var newCol = col + 1
+                        val newElem = ArrayList<Pair<Int, Int>>()
+                        newElem.add(Pair(cel.hintRight, cel.hintRight))
+                        while (newCol < size && board[row][newCol] is KakuroCellValue) {
+                            newElem.add(Pair(row, newCol))
+                            newCol ++
+                        }
+                        coords.add(newElem)
+                    }
+                }
+            }
+        }
+
+        return coords
+    }
+
     fun getRowHint(row: Int, col: Int) : KakuroCellHint? {
         if (row in 0 until size && col in 0 until size) {
             var cell = board[row][col]!!

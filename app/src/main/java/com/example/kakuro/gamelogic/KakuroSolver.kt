@@ -1,6 +1,7 @@
 package com.example.kakuro.gamelogic
 
 import org.chocosolver.solver.Model
+import org.chocosolver.solver.variables.IntVar
 
 class KakuroSolver(private val model: KakuroBoardModel) {
 
@@ -10,6 +11,9 @@ class KakuroSolver(private val model: KakuroBoardModel) {
         Array(size) {
             ArrayList<Int>()
         }
+    }
+    private val constModelBoard: Array<Array<IntVar?>> = Array(size) {
+        arrayOfNulls<IntVar>(size)
     }
 
     companion object {
@@ -70,7 +74,9 @@ class KakuroSolver(private val model: KakuroBoardModel) {
     }
 
     fun solveTrivial() {
-        val model = Model("Kakuro Constraint Problem")
+        val kakuroModel = Model("Kakuro Constraint Problem")
+        // Create a variable taking its value in {1, 3} (the value is 1 or 3)
+        // val v2 = model.intVar("v2", intArrayOf(1, 3))
 
         var newSolution = -1
         while (newSolution != 0) {
@@ -86,6 +92,73 @@ class KakuroSolver(private val model: KakuroBoardModel) {
                             newSolution ++
                         }
                     }
+                }
+            }
+        }
+
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                if (posBoard[row][col].size > 0) { // > 1 ?
+                    constModelBoard[row][col] = kakuroModel.intVar("V_$row$col", posBoard[row][col].toIntArray())
+                }
+            }
+        }
+        val hints = model.getAllRowsAndCols()
+        for (i in hints) { // probably the dumbest piece of code ever written
+            when (i.size) { // behold
+                3 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second]).eq(i[0].first).post()
+                4 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .eq(i[0].first).post()
+                5 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .add(constModelBoard[i[4].first][i[4].second])
+                    .eq(i[0].first).post()
+                6 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .add(constModelBoard[i[4].first][i[4].second])
+                    .add(constModelBoard[i[5].first][i[5].second])
+                    .eq(i[0].first).post()
+                7 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .add(constModelBoard[i[4].first][i[4].second])
+                    .add(constModelBoard[i[5].first][i[5].second])
+                    .add(constModelBoard[i[6].first][i[6].second])
+                    .eq(i[0].first).post()
+                8 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .add(constModelBoard[i[4].first][i[4].second])
+                    .add(constModelBoard[i[5].first][i[5].second])
+                    .add(constModelBoard[i[6].first][i[6].second])
+                    .add(constModelBoard[i[7].first][i[7].second])
+                    .eq(i[0].first).post()
+                9 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .add(constModelBoard[i[4].first][i[4].second])
+                    .add(constModelBoard[i[5].first][i[5].second])
+                    .add(constModelBoard[i[6].first][i[6].second])
+                    .add(constModelBoard[i[7].first][i[7].second])
+                    .add(constModelBoard[i[8].first][i[8].second])
+                    .eq(i[0].first).post()
+                10 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                    .add(constModelBoard[i[3].first][i[3].second])
+                    .add(constModelBoard[i[4].first][i[4].second])
+                    .add(constModelBoard[i[5].first][i[5].second])
+                    .add(constModelBoard[i[6].first][i[6].second])
+                    .add(constModelBoard[i[7].first][i[7].second])
+                    .add(constModelBoard[i[8].first][i[8].second])
+                    .add(constModelBoard[i[9].first][i[9].second])
+                    .eq(i[0].first).post()
+            }
+        }
+
+        val solution = kakuroModel.getSolver().findSolution()
+
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cel = board[row][col]
+                if (cel is KakuroCellValue && constModelBoard[row][col] != null) {
+                    cel.value = constModelBoard[row][col]!!.value
                 }
             }
         }

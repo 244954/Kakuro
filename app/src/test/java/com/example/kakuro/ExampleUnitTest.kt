@@ -1,9 +1,15 @@
 package com.example.kakuro
 
 import com.example.kakuro.gamelogic.*
+import org.chocosolver.solver.Model
 import org.junit.Test
 
 import org.junit.Assert.*
+import org.chocosolver.solver.Solution
+import org.chocosolver.solver.constraints.extension.TuplesFactory.arithm
+import org.chocosolver.solver.variables.IntVar
+
+
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -161,5 +167,47 @@ class ExampleUnitTest {
         kakuroSolver.solveTrivial()
         assertEquals((kakuroBoard.board[1][3] as KakuroCellValue).value, 6)
         assertEquals((kakuroBoard.board[1][4] as KakuroCellValue).value, 2)
+    }
+
+    @Test
+    fun chocoTest() {
+        val n = 8
+        val model = Model("$n-queens problem")
+        val vars = arrayOfNulls<IntVar>(n)
+        for (q in 0 until n) {
+            vars[q] = model.intVar("Q_$q", 1, n)
+        }
+        for (i in 0 until n - 1) {
+            for (j in i + 1 until n) {
+                model.arithm(vars[i], "!=", vars[j]).post()
+                model.arithm(vars[i], "!=", vars[j], "-", j - i).post()
+                model.arithm(vars[i], "!=", vars[j], "+", j - i).post()
+            }
+        }
+        val solution = model.getSolver().findSolution()
+        if (solution != null) {
+            println(solution.toString())
+        }
+        assertEquals(1, 1)
+    }
+
+    @Test
+    fun allRowsColsTest() {
+        val kakuroBoardRaw : Array<Array<Int>> = arrayOf(
+            arrayOf(8, 2, 1 ,3, 0),
+            arrayOf(24, 4, 2, 1 ,0),
+            arrayOf(18, 4, 3, 1, 0),
+            arrayOf(9, 2, 4, 1, 0),
+            arrayOf(7, 3, 2, 1, 1),
+            arrayOf(23, 3, 2, 2, 1),
+            arrayOf(23, 3, 1, 3, 1),
+            arrayOf(6, 3, 1, 4, 1)
+        )
+
+        val kakuroBoard = KakuroBoardModel(5, kakuroBoardRaw)
+
+        println(kakuroBoard.getAllRowsAndCols().toString())
+
+        assertEquals(1, 1)
     }
 }
