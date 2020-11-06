@@ -29,7 +29,12 @@ class KakuroGame(size: Int, values: Array<Array<Int>>) {
         }
         updateValidation(selectedRow, selectedCol, board)
         cellsLiveData.postValue(board.board)
+    }
 
+    fun solvePuzzle() {
+        val solver = KakuroSolver(board)
+        solver.solveTrivial()
+        cellsLiveData.postValue(board.board)
     }
 
     fun updateteSelectedCell(row: Int, col: Int) {

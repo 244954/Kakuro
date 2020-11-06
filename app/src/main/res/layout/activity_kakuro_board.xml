@@ -15,7 +15,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:rowCount="3"
-                android:columnCount="3"
+                android:columnCount="4"
                 android:layout_alignParentBottom="true"
                 android:layout_centerHorizontal="true">
         <Button
@@ -41,6 +41,8 @@
                 android:text="3">
         </Button>
 
+        <Button/>
+
         <Button
                 android:id="@+id/buttonFour"
                 android:layout_width="wrap_content"
@@ -63,6 +65,13 @@
         </Button>
 
         <Button
+                android:id="@+id/buttonSolve"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Solve">
+        </Button>
+
+        <Button
                 android:id="@+id/buttonSeven"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,6 +91,8 @@
                 android:layout_height="wrap_content"
                 android:text="9">
         </Button>
+
+        <Button/>
 
     </GridLayout>
 </RelativeLayout>

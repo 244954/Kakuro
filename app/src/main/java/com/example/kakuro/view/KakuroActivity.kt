@@ -43,6 +43,10 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
                 viewModel.kakuroGame.handleInput(index + 1) // index starts from 0
             }
         }
+
+        buttonSolve.setOnClickListener {
+            viewModel.kakuroGame.solvePuzzle()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
