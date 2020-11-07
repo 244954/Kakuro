@@ -84,12 +84,33 @@ class KakuroSolver(private val model: KakuroBoardModel) {
             for (row in 0 until size) {
                 for (col in 0 until size) {
                     val cell = board[row][col]
-                    if (cell is KakuroCellValue && cell.value == 0) {
-                        val pos = getPossibleValues(row, col)
-                        posBoard[row][col] = pos
-                        if (pos.size == 1) {
-                            cell.value = pos[0]
-                            newSolution ++
+                    if (cell is KakuroCellValue) {
+                        if (cell.value == 0) {
+                            val pos = getPossibleValues(row, col)
+                            posBoard[row][col] = pos
+                            if (pos.size == 1) {
+                                cell.value = pos[0]
+                                newSolution++
+                            }
+                        }
+                        else { // data already entered
+                            posBoard[row][col] = arrayListOf(cell.value)
+                            /*
+                            val pos = getPossibleValues(row, col)
+                            posBoard[row][col] = pos
+                            if (pos.size == 1) { // if one solution, override
+                                cell.value = pos[0]
+                                newSolution++
+                            }
+                            else {
+                                if (cell.value in pos) {
+                                    // if legal, do nothing (though it probably should do something)
+                                }
+                                else {
+                                    cell.value = 0  // if illegal, remove
+                                }
+                            }
+                            */
                         }
                     }
                 }
@@ -242,7 +263,7 @@ class KakuroSolver(private val model: KakuroBoardModel) {
 
         val rowCombinations = calcCombinations(rowHint!!.hintRight,wholeRow.size)
         for(i in wholeRow) {
-            if (i.value != 0) {
+            if (i.value != 0) { // it can't be me! Cannot discard my own value
                 rowCombinations.removeIf { j -> !j.contains(i.value)}
             }
         }
@@ -255,12 +276,14 @@ class KakuroSolver(private val model: KakuroBoardModel) {
 
         val combinations = mergeCombinations(rowCombinations, colCombinations)
         possibles = combinations.toCollection(ArrayList())
+
         for(i in wholeRow) {
             possibles.remove(i.value)
         }
         for(i in wholeCol) {
             possibles.remove(i.value)
         }
+
 
         return possibles
     }
