@@ -106,49 +106,118 @@ class KakuroSolver(private val model: KakuroBoardModel) {
         val hints = model.getAllRowsAndCols()
         for (i in hints) { // probably the dumbest piece of code ever written
             when (i.size) { // behold
-                3 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second]).eq(i[0].first).post()
-                4 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .eq(i[0].first).post()
-                5 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .add(constModelBoard[i[4].first][i[4].second])
-                    .eq(i[0].first).post()
-                6 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .add(constModelBoard[i[4].first][i[4].second])
-                    .add(constModelBoard[i[5].first][i[5].second])
-                    .eq(i[0].first).post()
-                7 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .add(constModelBoard[i[4].first][i[4].second])
-                    .add(constModelBoard[i[5].first][i[5].second])
-                    .add(constModelBoard[i[6].first][i[6].second])
-                    .eq(i[0].first).post()
-                8 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .add(constModelBoard[i[4].first][i[4].second])
-                    .add(constModelBoard[i[5].first][i[5].second])
-                    .add(constModelBoard[i[6].first][i[6].second])
-                    .add(constModelBoard[i[7].first][i[7].second])
-                    .eq(i[0].first).post()
-                9 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .add(constModelBoard[i[4].first][i[4].second])
-                    .add(constModelBoard[i[5].first][i[5].second])
-                    .add(constModelBoard[i[6].first][i[6].second])
-                    .add(constModelBoard[i[7].first][i[7].second])
-                    .add(constModelBoard[i[8].first][i[8].second])
-                    .eq(i[0].first).post()
-                10 -> constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
-                    .add(constModelBoard[i[3].first][i[3].second])
-                    .add(constModelBoard[i[4].first][i[4].second])
-                    .add(constModelBoard[i[5].first][i[5].second])
-                    .add(constModelBoard[i[6].first][i[6].second])
-                    .add(constModelBoard[i[7].first][i[7].second])
-                    .add(constModelBoard[i[8].first][i[8].second])
-                    .add(constModelBoard[i[9].first][i[9].second])
-                    .eq(i[0].first).post()
+                3 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second]).post()
+                }
+                4 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second]).post()
+                }
+                5 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .add(constModelBoard[i[4].first][i[4].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second],
+                        constModelBoard[i[4].first][i[4].second]).post()
+                }
+                6 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .add(constModelBoard[i[4].first][i[4].second])
+                        .add(constModelBoard[i[5].first][i[5].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second],
+                        constModelBoard[i[4].first][i[4].second],
+                        constModelBoard[i[5].first][i[5].second]).post()
+                }
+                7 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .add(constModelBoard[i[4].first][i[4].second])
+                        .add(constModelBoard[i[5].first][i[5].second])
+                        .add(constModelBoard[i[6].first][i[6].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second],
+                        constModelBoard[i[4].first][i[4].second],
+                        constModelBoard[i[5].first][i[5].second],
+                        constModelBoard[i[6].first][i[6].second]).post()
+                }
+                8 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .add(constModelBoard[i[4].first][i[4].second])
+                        .add(constModelBoard[i[5].first][i[5].second])
+                        .add(constModelBoard[i[6].first][i[6].second])
+                        .add(constModelBoard[i[7].first][i[7].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second],
+                        constModelBoard[i[4].first][i[4].second],
+                        constModelBoard[i[5].first][i[5].second],
+                        constModelBoard[i[6].first][i[6].second],
+                        constModelBoard[i[7].first][i[7].second]).post()
+                }
+                9 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .add(constModelBoard[i[4].first][i[4].second])
+                        .add(constModelBoard[i[5].first][i[5].second])
+                        .add(constModelBoard[i[6].first][i[6].second])
+                        .add(constModelBoard[i[7].first][i[7].second])
+                        .add(constModelBoard[i[8].first][i[8].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second],
+                        constModelBoard[i[4].first][i[4].second],
+                        constModelBoard[i[5].first][i[5].second],
+                        constModelBoard[i[6].first][i[6].second],
+                        constModelBoard[i[7].first][i[7].second],
+                        constModelBoard[i[8].first][i[8].second]).post()
+                }
+                10 -> {
+                    constModelBoard[i[1].first][i[1].second]!!.add(constModelBoard[i[2].first][i[2].second])
+                        .add(constModelBoard[i[3].first][i[3].second])
+                        .add(constModelBoard[i[4].first][i[4].second])
+                        .add(constModelBoard[i[5].first][i[5].second])
+                        .add(constModelBoard[i[6].first][i[6].second])
+                        .add(constModelBoard[i[7].first][i[7].second])
+                        .add(constModelBoard[i[8].first][i[8].second])
+                        .add(constModelBoard[i[9].first][i[9].second])
+                        .eq(i[0].first).post()
+
+                    kakuroModel.allDifferent(constModelBoard[i[1].first][i[1].second],
+                        constModelBoard[i[2].first][i[2].second],
+                        constModelBoard[i[3].first][i[3].second],
+                        constModelBoard[i[4].first][i[4].second],
+                        constModelBoard[i[5].first][i[5].second],
+                        constModelBoard[i[6].first][i[6].second],
+                        constModelBoard[i[7].first][i[7].second],
+                        constModelBoard[i[8].first][i[8].second],
+                        constModelBoard[i[9].first][i[9].second]).post()
+                }
             }
         }
 
