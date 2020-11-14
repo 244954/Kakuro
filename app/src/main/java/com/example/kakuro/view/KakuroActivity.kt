@@ -14,6 +14,10 @@ import android.os.CountDownTimer
 import android.os.SystemClock
 import android.view.View
 import android.widget.Chronometer
+import com.example.kakuro.datahandling.DatabaseHelper
+import com.example.kakuro.gamelogic.KakuroCellBlank
+import com.example.kakuro.gamelogic.KakuroCellHint
+import com.example.kakuro.gamelogic.KakuroCellValue
 import java.util.concurrent.TimeUnit
 
 
@@ -21,10 +25,9 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
     private lateinit var viewModel : KakuroViewModel
     private var size = 1
-    private val oldTimer: Long = 3600000
-    private var timer: Long = oldTimer // need to be changed, it can't really be a countdown
-    private var timePassed: Long = 0
+    private var timePassed: Long = SystemClock.elapsedRealtime()
     private var chronometer : Chronometer? = null
+    private lateinit var database : DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,12 +38,29 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
         val b = intent.extras
         val boardNumber = b?.getInt("board")
-        val boardValues = getBoardFromFile(boardNumber!!)
+        viewModel = ViewModelProviders.of(this).get(KakuroViewModel::class.java)
+        database = DatabaseHelper(this)
+
+        when(boardNumber!!) {
+            0 -> {
+                val boardValues = getBoardFromDb()
+                viewModel.startViewModelFromSavedState(size, boardValues)
+            }
+            1 -> {
+                // generate random
+                //boardValues = getBoardFromFile(0)
+            }
+            2 -> {
+                // scan
+                //boardValues = getBoardFromFile(0)
+            }
+            else -> {
+                val boardValues = getBoardFromFile(boardNumber)
+                viewModel.startViewModel(size, boardValues)
+            }
+        }
 
         kakuroBoard.setSize(size) // set size for Kakuro View
-
-        viewModel = ViewModelProviders.of(this).get(KakuroViewModel::class.java)
-        viewModel.startViewModel(size, boardValues)
         viewModel.kakuroGame.selectedCellLiveData.observe(this, Observer { updateSelectedCellUI(it)  })
         viewModel.kakuroGame.cellsLiveData.observe(this, Observer { updateCells(it) })
 
@@ -55,6 +75,14 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
         buttonSolve.setOnClickListener {
             viewModel.kakuroGame.solvePuzzle()
         }
+    }
+
+    override fun onDestroy() {
+        database.clearData()
+        database.insertData1(size, size, SystemClock.elapsedRealtime())
+        insertToDb() // insert to table 2
+
+        super.onDestroy()
     }
 
     override fun onPause() {
@@ -77,7 +105,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
         val counter = menu?.findItem(R.id.counter)
         chronometer = counter?.actionView as Chronometer
-        chronometer?.base = SystemClock.elapsedRealtime()
+        chronometer?.base = timePassed
         chronometer?.start()
 
         return true
@@ -111,6 +139,66 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
         }
 
         return arr
+    }
+
+    private fun insertToDb() {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = viewModel.kakuroGame.getCell(row, col)
+                when(cell) {
+                    is KakuroCellBlank -> {
+                        database.insertData2(row, col, 0, 0, 0) // 0 - blank
+                    }
+                    is KakuroCellValue -> {
+                        database.insertData2(row, col, 1, cell.value, 0) // 1 - value
+                    }
+                    is KakuroCellHint -> {
+                        database.insertData2(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
+                    }
+                }
+            }
+        }
+    }
+
+    private fun getBoardFromDb() : Array<Array<KakuroCell?>> {
+        // Get size and time from db
+        val cursor = database.getData1()
+        if (cursor.count == 1) {
+            cursor.moveToFirst()
+            size = cursor.getString(1).toInt()
+            timePassed = cursor.getString(3).toLong()
+        }
+        cursor.close()
+
+        val board: Array<Array<KakuroCell?>> = Array(size) {
+            arrayOfNulls<KakuroCell>(size)
+        }
+
+        // Get board from db
+        val cursor2 = database.getData2()
+        if (cursor2.count > 0) {
+            while (cursor2.moveToNext()) {
+                val row = cursor2.getString(1).toInt()
+                val col = cursor2.getString(2).toInt()
+                when(cursor2.getString(3).toInt()) {
+                    0 -> {
+                        // blank
+                        board[row][col] = KakuroCellBlank(row, col)
+                    }
+                    1 -> {
+                        // value
+                        board[row][col] = KakuroCellValue(row, col, cursor2.getString(4).toInt())
+                    }
+                    2 -> {
+                        // hint
+                        board[row][col] = KakuroCellHint(row, col, cursor2.getString(4).toInt(), cursor2.getString(5).toInt())
+                    }
+                }
+            }
+        }
+        cursor2.close()
+
+        return board
     }
 
     private fun updateCells(cells: Array<Array<KakuroCell?>>?) = cells?.let {

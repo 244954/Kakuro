@@ -5,13 +5,18 @@ package com.example.kakuro.gamelogic
     [10, 4, 3, 2, 0]
     [3, 2, 3, 2, 1]
  */
-class KakuroBoardModel(val size: Int, values: Array<Array<Int>>) {
+class KakuroBoardModel(val size: Int) {
 
     var board: Array<Array<KakuroCell?>> = Array(size) {
         arrayOfNulls<KakuroCell>(size)
     }
 
-    init {
+    constructor(size: Int, board: Array<Array<KakuroCell?>>) : this(size) {
+        this.board = board
+    }
+
+    constructor(size: Int, values: Array<Array<Int>>) : this(size) {
+
         for (i in values) {
             when (i[4]) {
                 0 -> { // goes to the right

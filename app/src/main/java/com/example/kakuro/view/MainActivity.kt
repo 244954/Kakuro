@@ -13,6 +13,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
+    fun onClickContinue(v: View) {
+        val kakuroIntent = Intent(this, KakuroActivity::class.java)
+        val b = Bundle()
+        b.putInt("board",0) // 0 means load saved
+        kakuroIntent.putExtras(b)
+        startActivity(kakuroIntent)
+    }
+
     fun onclickbuttonstaged(v: View) {
         goToSelect()
     }

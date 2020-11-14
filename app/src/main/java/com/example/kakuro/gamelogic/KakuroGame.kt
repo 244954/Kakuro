@@ -2,7 +2,7 @@ package com.example.kakuro.gamelogic
 
 import android.arch.lifecycle.MutableLiveData
 
-class KakuroGame(size: Int, values: Array<Array<Int>>) {
+class KakuroGame(size: Int) {
 
     var selectedCellLiveData = MutableLiveData<Pair<Int, Int>>()
     var cellsLiveData = MutableLiveData<Array<Array<KakuroCell?>>>()
@@ -12,9 +12,16 @@ class KakuroGame(size: Int, values: Array<Array<Int>>) {
 
     private var timePassed: Long = 0
 
-    private var board: KakuroBoardModel = KakuroBoardModel(size, values)
+    private lateinit var board: KakuroBoardModel
 
-    init {
+    constructor(size: Int, values: Array<Array<Int>>) : this(size) { // constructor for simplified representation
+        board = KakuroBoardModel(size, values)
+        selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
+        cellsLiveData.postValue(board.board)
+    }
+
+    constructor(size: Int, startedBoard: Array<Array<KakuroCell?>>) : this(size) { // constructor for saved games
+        board = KakuroBoardModel(size, startedBoard)
         selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
         cellsLiveData.postValue(board.board)
     }
@@ -47,6 +54,13 @@ class KakuroGame(size: Int, values: Array<Array<Int>>) {
         // val elapsedMillis = SystemClock.elapsedRealtime() - chronometerInstance.base // to get time in milis
 
         return timePassed
+    }
+
+    fun getCell(row: Int, col: Int) : KakuroCell? {
+        if (row in 0 until board.size && col in 0 until board.size) {
+            return board.getCell(row, col)
+        }
+        return null
     }
 
     fun updateteSelectedCell(row: Int, col: Int) {
