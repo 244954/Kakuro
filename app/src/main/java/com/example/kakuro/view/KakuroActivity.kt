@@ -60,7 +60,6 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
     override fun onPause() {
         super.onPause()
 
-        val base = TimeUnit.MILLISECONDS.toSeconds(chronometer!!.base)
         viewModel.kakuroGame.updateTime(SystemClock.elapsedRealtime())
         chronometer!!.stop()
     }
@@ -68,44 +67,8 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
     override fun onResume() {
         super.onResume()
 
-        //val passedTime = TimeUnit.MILLISECONDS.toSeconds(viewModel.kakuroGame.getTime())
-        //timer = oldTimer - viewModel.kakuroGame.getTime()
-        //onCreateOptionsMenu(null) // restart timer
-
-        val base = TimeUnit.MILLISECONDS.toSeconds(viewModel.kakuroGame.getTime())
         chronometer?.base = chronometer!!.base + SystemClock.elapsedRealtime() - viewModel.kakuroGame.getTime()
         chronometer?.start()
-    }
-
-    fun createCounter() {
-
-        /*
-        object : CountDownTimer(oldTimer, 1000) {
-
-            override fun onTick(millisUntilFinished: Long) {
-                timePassed = timer - millisUntilFinished
-                var minutes = (TimeUnit.MILLISECONDS.toMinutes(timePassed) -TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timePassed))).toString()
-                if (minutes.length == 1) {
-                    minutes = "0$minutes"
-                }
-                var seconds = (TimeUnit.MILLISECONDS.toSeconds(timePassed) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timePassed))).toString()
-                if (seconds.length == 1) {
-                    seconds = "0$seconds"
-                }
-                val hms = "$minutes:$seconds"
-                //val hms = (TimeUnit.MILLISECONDS.toMinutes(timePassed) -TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timePassed))).toString() + ":" + (TimeUnit.MILLISECONDS.toSeconds(timePassed) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timePassed))).toString()
-                counter?.title = hms
-
-                if (kakuroBoard.isShown) { // don't update when user is not here
-                    viewModel.kakuroGame.updateTime(timePassed)
-                }
-            }
-
-            override fun onFinish() {
-                counter?.title = "##:##"
-            }
-        }.start()
-        */
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
