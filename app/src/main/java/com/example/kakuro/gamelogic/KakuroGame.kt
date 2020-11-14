@@ -10,6 +10,8 @@ class KakuroGame(size: Int, values: Array<Array<Int>>) {
     private var selectedRow = -1
     private var selectedCol = -1
 
+    private var timePassed: Long = 0
+
     private var board: KakuroBoardModel = KakuroBoardModel(size, values)
 
     init {
@@ -35,6 +37,16 @@ class KakuroGame(size: Int, values: Array<Array<Int>>) {
         val solver = KakuroSolver(board)
         solver.solveTrivial()
         cellsLiveData.postValue(board.board)
+    }
+
+    fun updateTime(timePassed: Long) {
+        this.timePassed = timePassed
+    }
+
+    fun getTime() : Long {
+        // val elapsedMillis = SystemClock.elapsedRealtime() - chronometerInstance.base // to get time in milis
+
+        return timePassed
     }
 
     fun updateteSelectedCell(row: Int, col: Int) {

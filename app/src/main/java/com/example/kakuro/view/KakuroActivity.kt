@@ -4,19 +4,27 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import com.example.kakuro.R
 import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.viewmodel.KakuroViewModel
 import kotlinx.android.synthetic.main.activity_kakuro_board.*
-
+import android.os.CountDownTimer
+import android.os.SystemClock
+import android.view.View
+import android.widget.Chronometer
+import java.util.concurrent.TimeUnit
 
 
 class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
     private lateinit var viewModel : KakuroViewModel
     private var size = 1
+    private val oldTimer: Long = 3600000
+    private var timer: Long = oldTimer // need to be changed, it can't really be a countdown
+    private var timePassed: Long = 0
+    private var chronometer : Chronometer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +55,69 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
         buttonSolve.setOnClickListener {
             viewModel.kakuroGame.solvePuzzle()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        val base = TimeUnit.MILLISECONDS.toSeconds(chronometer!!.base)
+        viewModel.kakuroGame.updateTime(SystemClock.elapsedRealtime())
+        chronometer!!.stop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //val passedTime = TimeUnit.MILLISECONDS.toSeconds(viewModel.kakuroGame.getTime())
+        //timer = oldTimer - viewModel.kakuroGame.getTime()
+        //onCreateOptionsMenu(null) // restart timer
+
+        val base = TimeUnit.MILLISECONDS.toSeconds(viewModel.kakuroGame.getTime())
+        chronometer?.base = chronometer!!.base + SystemClock.elapsedRealtime() - viewModel.kakuroGame.getTime()
+        chronometer?.start()
+    }
+
+    fun createCounter() {
+
+        /*
+        object : CountDownTimer(oldTimer, 1000) {
+
+            override fun onTick(millisUntilFinished: Long) {
+                timePassed = timer - millisUntilFinished
+                var minutes = (TimeUnit.MILLISECONDS.toMinutes(timePassed) -TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timePassed))).toString()
+                if (minutes.length == 1) {
+                    minutes = "0$minutes"
+                }
+                var seconds = (TimeUnit.MILLISECONDS.toSeconds(timePassed) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timePassed))).toString()
+                if (seconds.length == 1) {
+                    seconds = "0$seconds"
+                }
+                val hms = "$minutes:$seconds"
+                //val hms = (TimeUnit.MILLISECONDS.toMinutes(timePassed) -TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(timePassed))).toString() + ":" + (TimeUnit.MILLISECONDS.toSeconds(timePassed) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(timePassed))).toString()
+                counter?.title = hms
+
+                if (kakuroBoard.isShown) { // don't update when user is not here
+                    viewModel.kakuroGame.updateTime(timePassed)
+                }
+            }
+
+            override fun onFinish() {
+                counter?.title = "##:##"
+            }
+        }.start()
+        */
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.menu, menu)
+
+        val counter = menu?.findItem(R.id.counter)
+        chronometer = counter?.actionView as Chronometer
+        chronometer?.base = SystemClock.elapsedRealtime()
+        chronometer?.start()
+
+        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
