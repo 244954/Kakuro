@@ -15,18 +15,24 @@ import android.os.SystemClock
 import android.view.View
 import android.widget.Chronometer
 import com.example.kakuro.datahandling.DatabaseHelper
+import com.example.kakuro.dialog.VictoryDialog
 import com.example.kakuro.gamelogic.KakuroCellBlank
 import com.example.kakuro.gamelogic.KakuroCellHint
 import com.example.kakuro.gamelogic.KakuroCellValue
+import com.example.kakuro.misc.Stopwatch
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
+class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, VictoryDialog.DialogListener {
 
     private lateinit var viewModel : KakuroViewModel
     private var size = 1
-    private var timePassed: Long = SystemClock.elapsedRealtime()
+    private var timePassed: Long = 0
     private var chronometer : Chronometer? = null
+    //private var timePassed : Long = 0
+    //private val stopwatch = Stopwatch()
+    private var counter : MenuItem? = null
     private lateinit var database : DatabaseHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,7 +74,12 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
             buttonSix, buttonSeven, buttonEight, buttonNine)
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
-                viewModel.kakuroGame.handleInput(index + 1) // index starts from 0
+                if (viewModel.kakuroGame.handleInput(index + 1)) {
+                    val dialog = VictoryDialog()
+                    dialog.putTime(SystemClock.elapsedRealtime() - chronometer!!.base)
+                    chronometer?.stop()
+                    dialog.show(supportFragmentManager,"example") // dialog
+                }
             }
         }
 
@@ -79,7 +90,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
     override fun onDestroy() {
         database.clearData()
-        database.insertData1(size, size, SystemClock.elapsedRealtime())
+        database.insertData1(size, size, SystemClock.elapsedRealtime() - chronometer!!.base)
         insertToDb() // insert to table 2
 
         super.onDestroy()
@@ -88,14 +99,24 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
     override fun onPause() {
         super.onPause()
 
-        viewModel.kakuroGame.updateTime(SystemClock.elapsedRealtime())
+        viewModel.kakuroGame.updateTime(SystemClock.elapsedRealtime() - chronometer!!.base)
+        //stopwatch.stop()
         chronometer!!.stop()
     }
 
     override fun onResume() {
         super.onResume()
 
-        chronometer?.base = chronometer!!.base + SystemClock.elapsedRealtime() - viewModel.kakuroGame.getTime()
+        /*
+        if (stopwatch.wasStopped()) {
+            stopwatch.startWithTime(viewModel.kakuroGame.getTime())
+        }
+        else {
+            stopwatch.start()
+        }
+        */
+
+        chronometer?.base = SystemClock.elapsedRealtime() - viewModel.kakuroGame.getTime()
         chronometer?.start()
     }
 
@@ -103,9 +124,22 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.menu, menu)
 
-        val counter = menu?.findItem(R.id.counter)
+        counter = menu?.findItem(R.id.counter)
+
+        /*
+        Timer().scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                val time = stopwatch.getElapsedTime()
+                val ms = (TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time))).toString() +
+                        ":"+ (TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))).toString()
+                this@KakuroActivity.runOnUiThread(java.lang.Runnable {
+                    counter?.title = ms
+                })
+            }
+        }, 0, 500) // every half a second
+        */
         chronometer = counter?.actionView as Chronometer
-        chronometer?.base = timePassed
+        chronometer?.base = SystemClock.elapsedRealtime() - timePassed
         chronometer?.start()
 
         return true
@@ -211,5 +245,11 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener {
 
     override fun onCellTouched(row: Int, col: Int) {
         viewModel.kakuroGame.updateteSelectedCell(row, col)
+    }
+
+    override fun victoryAftermath() { // happens when dialog is closed
+        database.clearData()
+
+        finish()
     }
 }

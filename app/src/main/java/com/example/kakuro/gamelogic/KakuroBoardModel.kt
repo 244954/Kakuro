@@ -185,4 +185,18 @@ class KakuroBoardModel(val size: Int) {
         }
         return null
     }
+
+    fun isFinished() : Boolean {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = board[row][col]
+                if (cell is KakuroCellValue) {
+                    if (cell.value == 0 || cell.wrongRow || cell.wrongCol) {
+                        return false
+                    }
+                }
+            }
+        }
+        return true
+    }
 }

@@ -26,8 +26,8 @@ class KakuroGame(size: Int) {
         cellsLiveData.postValue(board.board)
     }
 
-    fun handleInput(number: Int) {
-        if ( selectedRow == -1 || selectedCol == -1) return
+    fun handleInput(number: Int) : Boolean { // returns whether kakuro is finished
+        if ( selectedRow == -1 || selectedCol == -1) return false
 
         val cell = board.getCell(selectedRow, selectedCol) as KakuroCellValue
         if ( cell.value == number) {
@@ -38,6 +38,7 @@ class KakuroGame(size: Int) {
         }
         updateValidation(selectedRow, selectedCol, board)
         cellsLiveData.postValue(board.board)
+        return board.isFinished()
     }
 
     fun solvePuzzle() {
