@@ -10,14 +10,16 @@
     <com.example.kakuro.view.KakuroBoardView android:id="@+id/kakuroBoard"
                                              android:layout_width="match_parent"
                                              android:layout_height="match_parent"
-                                             android:layout_alignParentTop="true"/>
+                                             android:layout_alignParentStart="true"/>
     <GridLayout android:id="@+id/numberGrid"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:rowCount="3"
-                android:columnCount="4"
-                android:layout_below="@+id/kakuroBoard"
-                android:layout_centerHorizontal="true">
+                android:rowCount="4"
+                android:columnCount="3"
+                android:layout_toEndOf="@+id/kakuroBoard"
+                android:layout_centerVertical="true"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp">
         <Button
                 android:id="@+id/buttonOne"
                 android:layout_width="wrap_content"
@@ -41,8 +43,6 @@
                 android:text="3">
         </Button>
 
-        <Button/>
-
         <Button
                 android:id="@+id/buttonFour"
                 android:layout_width="wrap_content"
@@ -65,13 +65,6 @@
         </Button>
 
         <Button
-                android:id="@+id/buttonSolve"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Solve">
-        </Button>
-
-        <Button
                 android:id="@+id/buttonSeven"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -90,6 +83,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="9">
+        </Button>
+
+        <Button/>
+
+        <Button
+                android:id="@+id/buttonSolve"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Solve">
         </Button>
 
         <Button/>

@@ -71,7 +71,9 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         val sizePixels = Math.min(widthMeasureSpec, heightMeasureSpec)
-        setMeasuredDimension(sizePixels, sizePixels)
+        if (sizePixels > 0) {
+            setMeasuredDimension(sizePixels, sizePixels)
+        }
         // assume kakuros are always square
     }
 
