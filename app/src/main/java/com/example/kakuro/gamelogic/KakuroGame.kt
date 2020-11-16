@@ -85,24 +85,12 @@ class KakuroGame(size: Int) {
     private fun updateRow(row: Int, col: Int, board: KakuroBoardModel) {
         val rowHint = board.getRowHint(row, col)?.hintRight
         val rowItems = board.getRow(row, col)
-        var sum = 0
-        for (i in rowItems) {
-            if (i.value == 0) {
-                rowItems.forEach {
-                    it.wrongRow = false
-                }
-                return
-            }
-            sum += i.value
-        }
-        if (sum != rowHint) {
-            rowItems.forEach {
-                it.wrongRow = true
-            }
-        }
-        else {
-            val values = rowItems.map { it.value }
-            if (values.distinct().size != values.size) {
+        val rowValues = rowItems.map { it.value }.toMutableList()
+
+        if (rowValues.contains(0)) {
+            rowValues.removeAll(listOf(0))
+
+            if (rowValues.size != rowValues.distinct().size || rowValues.sum() > rowHint!!) { // something repeats or it's too much
                 rowItems.forEach {
                     it.wrongRow = true
                 }
@@ -112,30 +100,37 @@ class KakuroGame(size: Int) {
                     it.wrongRow = false
                 }
             }
+            return
         }
+
+        if (rowValues.size != rowValues.distinct().size) { // something repeats, but with no zeros
+            rowItems.forEach {
+                it.wrongRow = true
+            }
+            return
+        }
+        if (rowItems.map { it.value }.sum() != rowHint) { // not exact sum
+            rowItems.forEach {
+                it.wrongRow = true
+            }
+            return
+        }
+        // else
+        rowItems.forEach {
+            it.wrongRow = false
+        }
+        return
     }
 
     private fun updateCol(row: Int, col: Int, board: KakuroBoardModel) {
         val colHint = board.getColumnHint(row, col)?.hintDown
         val colItems = board.getColumn(row, col)
-        var sum = 0
-        for (i in colItems) {
-            if (i.value == 0) {
-                colItems.forEach {
-                    it.wrongCol = false
-                }
-                return
-            }
-            sum += i.value
-        }
-        if (sum != colHint) {
-            colItems.forEach {
-                it.wrongCol = true
-            }
-        }
-        else {
-            val values = colItems.map { it.value }
-            if (values.distinct().size != values.size) {
+        val colValues = colItems.map { it.value }.toMutableList()
+
+        if (colValues.contains(0)) {
+            colValues.removeAll(listOf(0))
+
+            if (colValues.size != colValues.distinct().size || colValues.sum() > colHint!!) { // something repeats or it's too much
                 colItems.forEach {
                     it.wrongCol = true
                 }
@@ -145,6 +140,25 @@ class KakuroGame(size: Int) {
                     it.wrongCol = false
                 }
             }
+            return
         }
+
+        if (colValues.size != colValues.distinct().size) { // something repeats, but with no zeros
+            colItems.forEach {
+                it.wrongCol = true
+            }
+            return
+        }
+        if (colItems.map { it.value }.sum() != colHint) { // not exact sum
+            colItems.forEach {
+                it.wrongCol = true
+            }
+            return
+        }
+        // else
+        colItems.forEach {
+            it.wrongCol = false
+        }
+        return
     }
 }

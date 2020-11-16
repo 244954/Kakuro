@@ -210,4 +210,12 @@ class ExampleUnitTest {
 
         assertEquals(1, 1)
     }
+
+    @Test
+    fun distinctTest() {
+        val l = listOf(1, 2 ,3, 3).toMutableList()
+        l.distinct()
+
+        assertEquals(l.size, 4)
+    }
 }
