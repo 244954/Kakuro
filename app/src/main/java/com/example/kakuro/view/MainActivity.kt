@@ -5,8 +5,12 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import com.example.kakuro.R
+import com.example.kakuro.datahandling.DatabaseHelper
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val database = DatabaseHelper(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,5 +31,16 @@ class MainActivity : AppCompatActivity() {
     fun goToSelect() {
         val kakuroIntent = Intent(this, SelectBoardActivity::class.java)
         startActivity(kakuroIntent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        getData1() // check whether it is possible to continue every time we enter this screen
+    }
+
+    private fun getData1() {
+        val cursor = database.getData1()
+        button_continue.isEnabled = ( cursor.count == 1 )
+        cursor.close()
     }
 }

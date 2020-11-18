@@ -21,7 +21,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
     private var cells: Array<Array<KakuroCell?>>? = null
 
-    private var listener: KakuroBoardView.OnTouchListener? = null
+    private var listener: OnTouchListener? = null
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
@@ -38,11 +38,6 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
     private val selectedCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
         color = Color.parseColor(resources.getString(R.string.selectedCellColor))
-    }
-
-    private val errorCellPaint = Paint().apply {
-        style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor(resources.getString(R.string.errorCellColor))
     }
 
     private val textPaint = Paint().apply {
@@ -101,7 +96,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         cells?.forEach { boardRow->
             boardRow.forEach {
                 val row = it!!.row
-                val col = it!!.column
+                val col = it.column
                 when (it) {
                     is KakuroCellValue -> {
                         val cell = it as KakuroCellValue
@@ -194,7 +189,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
         invalidate()
     }
 
-    fun registerListener(listener: KakuroBoardView.OnTouchListener) {
+    fun registerListener(listener: OnTouchListener) {
         this.listener = listener
     }
 

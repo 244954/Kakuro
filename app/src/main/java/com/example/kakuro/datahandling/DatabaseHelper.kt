@@ -21,8 +21,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS " + TableName1)
-        db?.execSQL("DROP TABLE IF EXISTS " + TableName2)
+        db?.execSQL("DROP TABLE IF EXISTS $TableName1")
+        db?.execSQL("DROP TABLE IF EXISTS $TableName2")
 
     }
 
@@ -52,7 +52,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun getData1() : Cursor {
         val db = this.writableDatabase
-        val result = db.rawQuery("select * from " + TableName1, null)
+        val result = db.rawQuery("select * from $TableName1", null)
         if (result.count == 1) {
 
         }
@@ -61,7 +61,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     fun getData2() : Cursor {
         val db = this.writableDatabase
-        val result = db.rawQuery("select * from " + TableName2, null)
+        val result = db.rawQuery("select * from $TableName2", null)
         if (result.count == 1) {
 
         }

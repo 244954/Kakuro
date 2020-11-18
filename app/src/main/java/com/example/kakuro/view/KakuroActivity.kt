@@ -10,18 +10,13 @@ import com.example.kakuro.R
 import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.viewmodel.KakuroViewModel
 import kotlinx.android.synthetic.main.activity_kakuro_board.*
-import android.os.CountDownTimer
 import android.os.SystemClock
-import android.view.View
 import android.widget.Chronometer
 import com.example.kakuro.datahandling.DatabaseHelper
 import com.example.kakuro.dialog.VictoryDialog
 import com.example.kakuro.gamelogic.KakuroCellBlank
 import com.example.kakuro.gamelogic.KakuroCellHint
 import com.example.kakuro.gamelogic.KakuroCellValue
-import com.example.kakuro.misc.Stopwatch
-import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, VictoryDialog.DialogListener {
@@ -30,8 +25,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
     private var size = 1
     private var timePassed: Long = 0
     private var chronometer : Chronometer? = null
-    //private var timePassed : Long = 0
-    //private val stopwatch = Stopwatch()
+    private var gameIsFinished = false
     private var counter : MenuItem? = null
     private lateinit var database : DatabaseHelper
 
@@ -89,9 +83,11 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
     }
 
     override fun onDestroy() {
-        database.clearData()
-        database.insertData1(size, size, SystemClock.elapsedRealtime() - chronometer!!.base)
-        insertToDb() // insert to table 2
+        if (!gameIsFinished) { // inelegant but whatever
+            database.clearData()
+            database.insertData1(size, size, SystemClock.elapsedRealtime() - chronometer!!.base)
+            insertToDb() // insert to table 2
+        }
 
         super.onDestroy()
     }
@@ -178,8 +174,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
     private fun insertToDb() {
         for (row in 0 until size) {
             for (col in 0 until size) {
-                val cell = viewModel.kakuroGame.getCell(row, col)
-                when(cell) {
+                when(val cell = viewModel.kakuroGame.getCell(row, col)) {
                     is KakuroCellBlank -> {
                         database.insertData2(row, col, 0, 0, 0) // 0 - blank
                     }
@@ -249,6 +244,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
 
     override fun victoryAftermath() { // happens when dialog is closed
         database.clearData()
+        gameIsFinished = true
 
         finish()
     }
