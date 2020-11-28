@@ -8,7 +8,7 @@ import org.junit.Assert.*
 import org.chocosolver.solver.Solution
 import org.chocosolver.solver.constraints.extension.TuplesFactory.arithm
 import org.chocosolver.solver.variables.IntVar
-
+import org.opencv.android.OpenCVLoader
 
 
 /**
