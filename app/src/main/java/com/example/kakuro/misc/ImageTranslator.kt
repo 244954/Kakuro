@@ -5,14 +5,25 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageView
 import com.example.kakuro.R
+import org.chocosolver.solver.constraints.nary.nvalue.amnv.differences.D
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 
 class ImageTranslator {
+
+    var gridSize: Int = 0 // assume grid is square
+    var epsilon: Double = 0.0
+    var epsilonEdges: Double = 0.0
+    var epsilonNear: Double = 0.0
+    var epsilonSlope: Double = 0.0
 
     init {
         OpenCVLoader.initDebug()
@@ -47,7 +58,13 @@ class ImageTranslator {
     private fun detectCorners(image: Mat): Mat {
         val contours: MutableList<MatOfPoint> = mutableListOf<MatOfPoint>()
         val hierarchy = Mat()
-        Imgproc.findContours(image, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE)
+        Imgproc.findContours(
+            image,
+            contours,
+            hierarchy,
+            Imgproc.RETR_TREE,
+            Imgproc.CHAIN_APPROX_SIMPLE
+        )
 
         // left-down, X minimized, Y maximized
         var leftdownX = 1000000.0
@@ -90,16 +107,92 @@ class ImageTranslator {
         }
 
         val transformMat = Mat(4, 2, CvType.CV_32F)
-        transformMat.put(0, 0, leftupX, leftupY, rightupX, rightupY, leftdownX, leftdownY, rightdownX, rightdownY)
+        transformMat.put(
+            0,
+            0,
+            leftupX,
+            leftupY,
+            rightupX,
+            rightupY,
+            leftdownX,
+            leftdownY,
+            rightdownX,
+            rightdownY
+        )
         return transformMat
     }
 
     private fun transformPerspective(image: Mat, transformMat: Mat) {
         val imageSize = image.size()
         val destMat = Mat(4, 2, CvType.CV_32F)
-        destMat.put(0, 0, 0.0, 0.0, imageSize.width, 0.0, 0.0, imageSize.height, imageSize.width, imageSize.height)
+        destMat.put(
+            0,
+            0,
+            0.0,
+            0.0,
+            imageSize.width,
+            0.0,
+            0.0,
+            imageSize.height,
+            imageSize.width,
+            imageSize.height
+        )
         val perspectiveMatrix = Imgproc.getPerspectiveTransform(transformMat, destMat)
         Imgproc.warpPerspective(image, image, perspectiveMatrix, imageSize, Imgproc.INTER_CUBIC)
+    }
+
+    private fun legalLine(lineList: MutableList<Triple<Double, Double, Double>>, x0: Double, y0: Double, a: Double, epsilon1: Double): Boolean {
+        for (triple in lineList) {
+            if (abs(x0 - triple.first) < epsilon1 && abs(y0 - triple.second) < epsilon1) {
+                return false
+            }
+        }
+        lineList.add(Triple(x0, y0, a))
+        return true
+    }
+
+    private fun detectGrid(image: Mat) {
+        val edges = Mat()
+        val lines = Mat()
+        Imgproc.Canny(image, edges, 50.0, 100.0)
+        Imgproc.HoughLines(edges, lines, 1.0, Math.PI / 180.0, 250, 0.0, 0.0)
+        // filter lines
+        val imageSize = image.size()
+        epsilon = imageSize.height / 10.0
+        epsilonEdges = imageSize.height / 25
+        epsilonNear = imageSize.height / 50
+        epsilonSlope = 1.0 / 50.0
+        val gridLines = mutableListOf<Triple<Double, Double, Double>>()
+        // (x0, y0, a)
+        if (!lines.empty()) {
+            for (x in 0 until lines.rows()) {
+                val rho = lines[x, 0][0]
+                val theta = lines[x, 0][1]
+                val a = cos(theta)
+                val b = sin(theta)
+                val x0 = a * rho
+                val y0 = b * rho
+                val pt1 = Point(
+                    (x0 + imageSize.width * -b).roundToInt().toDouble(),
+                    (y0 + imageSize.height * a).roundToInt().toDouble()
+                )
+                val pt2 = Point(
+                    (x0 - imageSize.width * -b).roundToInt().toDouble(),
+                    (y0 - imageSize.height * a).roundToInt().toDouble()
+                )
+                if (abs(pt1.x - pt2.x) < epsilon || abs(pt1.y - pt2.y) < epsilon) { // ignore diagonal lines
+                    if (pt1.x in epsilonEdges..(imageSize.width - epsilonEdges) ||
+                        pt2.x in epsilonEdges..(imageSize.width - epsilonEdges) &&
+                        pt1.y in epsilonEdges..(imageSize.height - epsilonEdges) ||
+                        pt2.y in epsilonEdges..(imageSize.height - epsilonEdges)) { // ignore if too close to the edges
+                        if (legalLine(gridLines, x0, y0, a, epsilonNear)) { // not too close to other lines
+                            Imgproc.line(image, pt1, pt2, Scalar(0.0, 0.0, 255.0), Imgproc.LINE_AA)
+                        }
+                    }
+                }
+            }
+            gridSize = gridLines.size / 2 + 1
+        }
     }
 
     private fun printImage(image: Mat, activity: AppCompatActivity) {
@@ -122,6 +215,7 @@ class ImageTranslator {
         transformPerspective(color, transformMat)
         gaussianBlurAfterTransform(color)
         getGrayImageOfOriginal(color, gray)
+        detectGrid(color)
 
         printImage(color, activity)
     }
