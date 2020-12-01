@@ -1,11 +1,13 @@
 package com.example.kakuro.misc
 
+import android.R.attr.radius
 import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageView
 import com.example.kakuro.R
-import org.chocosolver.solver.constraints.nary.nvalue.amnv.differences.D
+import com.example.kakuro.gamelogic.KakuroCell
+import com.example.kakuro.gamelogic.KakuroCellValue
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
@@ -141,7 +143,13 @@ class ImageTranslator {
         Imgproc.warpPerspective(image, image, perspectiveMatrix, imageSize, Imgproc.INTER_CUBIC)
     }
 
-    private fun legalLine(lineList: MutableList<Triple<Double, Double, Double>>, x0: Double, y0: Double, a: Double, epsilon1: Double): Boolean {
+    private fun legalLine(
+        lineList: MutableList<Triple<Double, Double, Double>>,
+        x0: Double,
+        y0: Double,
+        a: Double,
+        epsilon1: Double
+    ): Boolean {
         for (triple in lineList) {
             if (abs(x0 - triple.first) < epsilon1 && abs(y0 - triple.second) < epsilon1) {
                 return false
@@ -185,14 +193,128 @@ class ImageTranslator {
                         pt2.x in epsilonEdges..(imageSize.width - epsilonEdges) &&
                         pt1.y in epsilonEdges..(imageSize.height - epsilonEdges) ||
                         pt2.y in epsilonEdges..(imageSize.height - epsilonEdges)) { // ignore if too close to the edges
-                        if (legalLine(gridLines, x0, y0, a, epsilonNear)) { // not too close to other lines
-                            Imgproc.line(image, pt1, pt2, Scalar(0.0, 0.0, 255.0), Imgproc.LINE_AA)
-                        }
+                        legalLine(gridLines, x0, y0, a, epsilonNear) // not too close to other lines
+//                        if (legalLine(gridLines, x0, y0, a, epsilonNear)) { // not too close to other lines
+//                            Imgproc.line(image, pt1, pt2, Scalar(0.0, 0.0, 255.0), Imgproc.LINE_AA)
+//                        }
                     }
                 }
             }
             gridSize = gridLines.size / 2 + 1
         }
+    }
+
+    private fun splitIntoTiles(image: Mat): Array<Array<Mat?>>? {
+        if (gridSize == 0) {
+            return null
+        }
+        else {
+            val size = image.size()
+            val rectWidth = (size.width / gridSize).toInt()
+            val rectHeight = (size.height / gridSize).toInt()
+
+            val grid = Array(gridSize) {
+                arrayOfNulls<Mat>(gridSize)
+            }
+            for (i in 0 until gridSize) {
+                for (j in 0 until gridSize) {
+                    grid[i][j] = image.submat(
+                        i * rectHeight,
+                        (i + 1) * rectHeight,
+                        j * rectWidth,
+                        (j + 1) * rectWidth
+                    )
+                }
+            }
+            return grid
+        }
+    }
+
+    private fun hasADiagonalLine(lines: Mat, imageSize: Size): Boolean {
+        if (!lines.empty()) {
+            for (x in 0 until lines.rows()) {
+                val rho = lines[x, 0][0]
+                val theta = lines[x, 0][1]
+                val a = cos(theta)
+                val b = sin(theta)
+                val x0 = a * rho
+                val y0 = b * rho
+                val pt1 = Point(
+                    (x0 + imageSize.width * -b).roundToInt().toDouble(),
+                    (y0 + imageSize.height * a).roundToInt().toDouble()
+                )
+                val pt2 = Point(
+                    (x0 - imageSize.width * -b).roundToInt().toDouble(),
+                    (y0 - imageSize.height * a).roundToInt().toDouble()
+                )
+                val slope = if (abs(pt2.x - pt1.x) < 0.01) {  // protect us from division by 0 !
+                    0.0
+                } else {
+                    (pt2.y - pt1.y) / (pt2.x - pt1.x)
+                }
+                if (abs(slope - 1.0) < 0.01) {  // needs more specific epsilon!
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun identifyTiles(grid: Array<Array<Mat?>>): Array<Array<KakuroCell?>> {
+        val board = Array(gridSize) {
+            arrayOfNulls<KakuroCell>(gridSize)
+        }
+
+        var color: Mat
+        val gray = Mat()
+        val edges = Mat()
+        val lines = Mat()
+        val contours = mutableListOf<MatOfPoint>()
+        val hierarchy = Mat()
+        var imageSize: Size
+
+        for (i in 0 until gridSize) {
+            for (j in 0 until gridSize) {
+                color = grid[i][j]!!
+                Imgproc.cvtColor(color, gray, Imgproc.COLOR_BGR2GRAY)
+                imageSize = color.size()
+
+                // detect diagonal line
+
+                Imgproc.Canny(color, edges, 50.0, 100.0)
+                Imgproc.HoughLines(edges, lines, 1.0, Math.PI / 180.0, 100, 0.0, 0.0)
+
+                if (hasADiagonalLine(lines, imageSize)) {
+                    // detect numbers
+
+                    Imgproc.findContours(
+                        gray,
+                        contours,
+                        hierarchy,
+                        Imgproc.RETR_TREE,
+                        Imgproc.CHAIN_APPROX_SIMPLE
+                    )
+
+                    val contoursPoly = arrayOfNulls<MatOfPoint2f>(contours.size)
+                    val boundRect: Array<Rect?>? = arrayOfNulls(contours.size)
+
+                    for (k in contours.indices) {
+                        contoursPoly[k] = MatOfPoint2f()
+                        Imgproc.approxPolyDP(MatOfPoint2f(*contours[k].toArray()), contoursPoly[k], 5.0, true)
+                        boundRect!![k] = Imgproc.boundingRect(contoursPoly[k])
+                    }
+
+                    for (k in contours.indices) {
+                        // evaluate bound rects
+                    }
+                }
+                else {
+                    board[i][j] = KakuroCellValue(i, j)
+                }
+            }
+        }
+
+        return board
     }
 
     private fun printImage(image: Mat, activity: AppCompatActivity) {
@@ -216,7 +338,9 @@ class ImageTranslator {
         gaussianBlurAfterTransform(color)
         getGrayImageOfOriginal(color, gray)
         detectGrid(color)
+        val gridTiles = splitIntoTiles(color)!!
+        identifyTiles(gridTiles)
 
-        printImage(color, activity)
+        printImage(gridTiles[1][2]!!, activity)
     }
 }
