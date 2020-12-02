@@ -1,6 +1,5 @@
 package com.example.kakuro.misc
 
-import android.R.attr.radius
 import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.view.View
@@ -13,13 +12,17 @@ import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
+import org.tensorflow.lite.Interpreter
+import java.io.FileInputStream
+import java.nio.ByteBuffer
+import java.nio.channels.FileChannel
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
 
-class ImageTranslator {
+class ImageTranslator(private val context: AppCompatActivity) {
 
     var gridSize: Int = 0 // assume grid is square
     var epsilon: Double = 0.0
@@ -27,8 +30,41 @@ class ImageTranslator {
     var epsilonNear: Double = 0.0
     var epsilonSlope: Double = 0.0
 
+    // val interpreter = Interpreter()
+    private val fileDescriptor = context.assets.openFd("model.tflite") // open uncompressed keras model
+    private val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+    private val fileChannel = inputStream.channel
+    private val startOffset = fileDescriptor.startOffset
+    private val declaredLength = fileDescriptor.declaredLength
+    private val tfLiteFile = fileChannel.map(
+        FileChannel.MapMode.READ_ONLY,
+        startOffset,
+        declaredLength
+    )
+    private val interpreter = Interpreter(tfLiteFile) // deprecated :c
+
+    // private val imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
+    private lateinit var imageTest: Mat
+
+
     init {
         OpenCVLoader.initDebug()
+        /*
+        imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
+        val input = Array(1) {
+            Array(28) {
+                Array(28) {
+                    0f
+                }
+            }
+        }
+        val output = Array(10) {
+            0
+        }
+
+        // val bm = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
+        interpreter.run(input, output)
+        */
     }
 
     private fun getImage(activity: AppCompatActivity): Mat {
@@ -300,7 +336,12 @@ class ImageTranslator {
 
                     for (k in contours.indices) {
                         contoursPoly[k] = MatOfPoint2f()
-                        Imgproc.approxPolyDP(MatOfPoint2f(*contours[k].toArray()), contoursPoly[k], 5.0, true)
+                        Imgproc.approxPolyDP(
+                            MatOfPoint2f(*contours[k].toArray()),
+                            contoursPoly[k],
+                            5.0,
+                            true
+                        )
                         boundRect!![k] = Imgproc.boundingRect(contoursPoly[k])
                     }
 
@@ -326,8 +367,8 @@ class ImageTranslator {
         iv.setImageBitmap(bm)
     }
 
-    fun processImage(activity: AppCompatActivity) {
-        val color = getImage(activity)
+    fun processImage() {
+        val color = getImage(context)
         val gray = Mat()
         getGrayImageOfOriginal(color, gray)
         initialGaussBlur(gray)
@@ -341,6 +382,6 @@ class ImageTranslator {
         val gridTiles = splitIntoTiles(color)!!
         identifyTiles(gridTiles)
 
-        printImage(gridTiles[1][2]!!, activity)
+        printImage(gridTiles[1][2]!!, context)
     }
 }

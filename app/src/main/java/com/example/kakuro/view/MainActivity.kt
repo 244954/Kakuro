@@ -19,12 +19,14 @@ import org.opencv.imgcodecs.Imgcodecs
 
 class MainActivity : AppCompatActivity() {
 
-    private val database = DatabaseHelper(this)
-    private val OpenCVConverter = ImageTranslator()
+    private lateinit var database: DatabaseHelper
+    private lateinit var openCVConverter: ImageTranslator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        database = DatabaseHelper(this)
+        openCVConverter = ImageTranslator(this)
     }
 
     fun onClickContinue(v: View) {
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickGenerate(v: View) {
-        OpenCVConverter.processImage(this)
+        openCVConverter.processImage()
 //        OpenCVLoader.initDebug()
 //        // val img = Imgcodecs.imread(this.getDrawable(R.drawable.logo)?.toString())
 //
