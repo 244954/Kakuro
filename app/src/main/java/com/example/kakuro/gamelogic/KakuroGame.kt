@@ -1,6 +1,6 @@
 package com.example.kakuro.gamelogic
 
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 
 class KakuroGame(size: Int) {
 

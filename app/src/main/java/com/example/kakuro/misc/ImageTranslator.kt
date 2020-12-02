@@ -1,18 +1,21 @@
 package com.example.kakuro.misc
 
 import android.graphics.Bitmap
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.gamelogic.KakuroCellValue
+import com.example.kakuro.ml.Model
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
+import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
@@ -49,6 +52,30 @@ class ImageTranslator(private val context: AppCompatActivity) {
 
     init {
         OpenCVLoader.initDebug()
+        imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
+        val bm = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(imageTest, bm)
+        // val bm = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
+        val buffer = ByteBuffer.allocate(bm.byteCount)
+        bm.copyPixelsToBuffer(buffer)
+
+        val model = Model.newInstance(context)
+
+        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 28, 28), DataType.FLOAT32)
+        inputFeature0.loadBuffer(buffer)
+
+        // Runs model inference and gets result.
+        val outputs = model.process(inputFeature0)
+        val outputFeature0 = outputs.outputFeature0AsTensorBuffer
+        val result = outputFeature0.floatArray
+        for (i in result) {
+            println(i.toString())
+        }
+        println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+
+        // Releases model resources if no longer used.
+        model.close()
+
         /*
         imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
         val input = Array(1) {

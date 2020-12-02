@@ -3,9 +3,9 @@ package com.example.kakuro.view
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.datahandling.DatabaseHelper
 import com.example.kakuro.misc.ImageTranslator

@@ -1,6 +1,6 @@
 package com.example.kakuro.viewmodel
 
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.ViewModel
 import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.gamelogic.KakuroGame
 
