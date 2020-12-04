@@ -1,6 +1,8 @@
 package com.example.kakuro.misc
 
+import android.content.res.AssetManager
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +20,7 @@ import org.tensorflow.lite.Interpreter
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.FileInputStream
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import kotlin.math.abs
 import kotlin.math.cos
@@ -33,65 +36,88 @@ class ImageTranslator(private val context: AppCompatActivity) {
     var epsilonNear: Double = 0.0
     var epsilonSlope: Double = 0.0
 
-    // val interpreter = Interpreter()
-    private val fileDescriptor = context.assets.openFd("model.tflite") // open uncompressed keras model
-    private val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-    private val fileChannel = inputStream.channel
-    private val startOffset = fileDescriptor.startOffset
-    private val declaredLength = fileDescriptor.declaredLength
-    private val tfLiteFile = fileChannel.map(
-        FileChannel.MapMode.READ_ONLY,
-        startOffset,
-        declaredLength
-    )
-    private val interpreter = Interpreter(tfLiteFile) // deprecated :c
+    private var interpreter: Interpreter? = null
+    var isInitialized = false
+        private set
 
-    // private val imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
-    private lateinit var imageTest: Mat
+    private var inputImageWidth: Int = 0 // will be inferred from TF Lite model
+    private var inputImageHeight: Int = 0 // will be inferred from TF Lite model
+    private var modelInputSize: Int = 0 // will be inferred from TF Lite model
 
 
     init {
         OpenCVLoader.initDebug()
-        imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
-        val bm = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(imageTest, bm)
-        // val bm = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
-        val buffer = ByteBuffer.allocate(bm.byteCount)
-        bm.copyPixelsToBuffer(buffer)
+        initializeInterpreter()
+        print("-----OOOOOOOOO------ Prediction: " + digitRecognition() + "-----OOOOOOO----")
+    }
 
-        val model = Model.newInstance(context)
+    private fun initializeInterpreter() {
+        // Load the TF Lite model created earlier
+        val assetManager = context.assets
+        val model = loadModelFile(assetManager)
 
-        val inputFeature0 = TensorBuffer.createFixedSize(intArrayOf(1, 28, 28), DataType.FLOAT32)
-        inputFeature0.loadBuffer(buffer)
+        // Initialize TF Lite Interpreter with NNAPI enabled
+        val options = Interpreter.Options()
+        options.setUseNNAPI(true)
+        val interpreter = Interpreter(model, options)
 
-        // Runs model inference and gets result.
-        val outputs = model.process(inputFeature0)
-        val outputFeature0 = outputs.outputFeature0AsTensorBuffer
-        val result = outputFeature0.floatArray
-        for (i in result) {
-            println(i.toString())
+        // Read input shape from model file
+        val inputShape = interpreter.getInputTensor(0).shape()
+        inputImageWidth = inputShape[1]
+        inputImageHeight = inputShape[2]
+        modelInputSize = FLOAT_TYPE_SIZE * inputImageWidth * inputImageHeight * PIXEL_SIZE
+
+        // Finish interpreter initialization
+        this.interpreter = interpreter
+        isInitialized = true
+    }
+
+    private fun loadModelFile(assetManager: AssetManager): ByteBuffer {
+        val fileDescriptor = assetManager.openFd(MODEL_FILE)
+        val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+        val fileChannel = inputStream.channel
+        val startOffset = fileDescriptor.startOffset
+        val declaredLength = fileDescriptor.declaredLength
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+    }
+
+    private fun convertBitmapToByteBuffer(bitmap: Bitmap): ByteBuffer {
+        val byteBuffer = ByteBuffer.allocateDirect(modelInputSize)
+        byteBuffer.order(ByteOrder.nativeOrder())
+
+        val pixels = IntArray(inputImageWidth * inputImageHeight)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+        for (pixelValue in pixels) {
+            val r = (pixelValue shr 16 and 0xFF)
+            val g = (pixelValue shr 8 and 0xFF)
+            val b = (pixelValue and 0xFF)
+
+            // Convert RGB to grayscale and normalize pixel value to [0..1]
+            val normalizedPixelValue = (r + g + b) / 3.0f / 255.0f
+            byteBuffer.putFloat(normalizedPixelValue)
         }
-        println("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
 
-        // Releases model resources if no longer used.
-        model.close()
+        return byteBuffer
+    }
 
-        /*
-        imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
-        val input = Array(1) {
-            Array(28) {
-                Array(28) {
-                    0f
-                }
-            }
-        }
-        val output = Array(10) {
-            0
-        }
+    private fun digitRecognition(): Int {
+        val imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
+        val bitmap = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(imageTest, bitmap)
 
-        // val bm = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
-        interpreter.run(input, output)
-        */
+        // Preprocessing: resize the input
+        val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
+        val byteBuffer = convertBitmapToByteBuffer(resizedImage)
+
+        val result = Array(1) { FloatArray(OUTPUT_CLASSES_COUNT) }
+        interpreter?.run(byteBuffer, result)
+
+        return getOutputString(result[0])
+    }
+
+    private fun getOutputString(output: FloatArray): Int {
+        return output.indices.maxBy { output[it] } ?: -1
     }
 
     private fun getImage(activity: AppCompatActivity): Mat {
@@ -410,5 +436,16 @@ class ImageTranslator(private val context: AppCompatActivity) {
         identifyTiles(gridTiles)
 
         printImage(gridTiles[1][2]!!, context)
+    }
+
+    companion object {
+        private const val TAG = "DigitClassifier"
+
+        private const val MODEL_FILE = "mnist.tflite"
+
+        private const val FLOAT_TYPE_SIZE = 4
+        private const val PIXEL_SIZE = 1
+
+        private const val OUTPUT_CLASSES_COUNT = 10
     }
 }
