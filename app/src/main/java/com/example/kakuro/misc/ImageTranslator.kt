@@ -8,6 +8,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.gamelogic.KakuroCell
+import com.example.kakuro.gamelogic.KakuroCellBlank
 import com.example.kakuro.gamelogic.KakuroCellValue
 import com.example.kakuro.ml.Model
 import org.opencv.android.OpenCVLoader
@@ -44,11 +45,12 @@ class ImageTranslator(private val context: AppCompatActivity) {
     private var inputImageHeight: Int = 0 // will be inferred from TF Lite model
     private var modelInputSize: Int = 0 // will be inferred from TF Lite model
 
+    private var imageToDraw: Mat? = null
+
 
     init {
         OpenCVLoader.initDebug()
         initializeInterpreter()
-        print("-----OOOOOOOOO------ Prediction: " + digitRecognition() + "-----OOOOOOO----")
     }
 
     private fun initializeInterpreter() {
@@ -386,6 +388,9 @@ class ImageTranslator(private val context: AppCompatActivity) {
 
                     val contoursPoly = arrayOfNulls<MatOfPoint2f>(contours.size)
                     val boundRect: Array<Rect?>? = arrayOfNulls(contours.size)
+                    val boundRectWithDigits: MutableList<Pair<Rect, Boolean>> = arrayListOf()
+
+                    // detect all bounding rectangles
 
                     for (k in contours.indices) {
                         contoursPoly[k] = MatOfPoint2f()
@@ -398,8 +403,38 @@ class ImageTranslator(private val context: AppCompatActivity) {
                         boundRect!![k] = Imgproc.boundingRect(contoursPoly[k])
                     }
 
+                    // filter detected rectangles with digits on them
+
                     for (k in contours.indices) {
-                        // evaluate bound rects
+                        if (boundRect!![k]!!.width in (imageSize.width / 70).toInt()..(imageSize.width / 2).toInt()
+                            && boundRect[k]!!.height in (imageSize.height / 70).toInt()..(imageSize.height / 2).toInt()) { // delete too small and too big
+                            addBoundRect(boundRectWithDigits, boundRect[k]!!)
+                        }
+                    }
+
+                    if (boundRectWithDigits.isEmpty()) { // it has no hints, its blank tile
+                        board[i][j] = KakuroCellBlank(i, j)
+                    }
+                    else {
+                        // it's a hint tile
+                        // now crop detected digits and pass them to NN for recognition
+                        for (k in boundRectWithDigits) {
+                            val currRect = k.first
+                            val widthDiff = (currRect.height - currRect.width) / 2
+                            currRect.x = currRect.x - widthDiff
+                            currRect.width = currRect.height
+                            if (currRect.x < 0) {
+                                currRect.x = 0
+                            }
+                            else if (currRect.x + currRect.width > imageSize.width) {
+                                currRect.x = imageSize.width.toInt() - 1 -currRect.width
+                            }
+                            // cropped, now cut
+                            val digit = color.submat(currRect)
+                            if (i == 1 && j == 1) {
+                                imageToDraw = digit
+                            }
+                        }
                     }
                 }
                 else {
@@ -409,6 +444,39 @@ class ImageTranslator(private val context: AppCompatActivity) {
         }
 
         return board
+    }
+
+    private fun addBoundRect(arr: MutableList<Pair<Rect, Boolean>>, rect: Rect) {
+        for (i in arr) {
+            if (rect1InsideRect2(rect, i.first)) {
+                return // don't insert
+            }
+            if (rect1InsideRect2(i.first, rect)) {
+                if (rect.x > rect.y) {
+                    arr.add(Pair(rect, UP))
+                }
+                else {
+                    arr.add(Pair(rect, DOWN))
+                }
+                arr.remove(i)
+                return
+            }
+        }
+        if (rect.x > rect.y) {
+            arr.add(Pair(rect, UP))
+        }
+        else {
+            arr.add(Pair(rect, DOWN))
+        }
+        return
+    }
+
+    private fun rect1InsideRect2(rect1: Rect, rect2: Rect): Boolean {
+        if (rect1.x > rect2.x && rect1.x + rect1.width < rect2.x + rect2.width &&
+            rect1.y > rect2.y && rect1.y + rect1.height < rect2.y + rect2.height) {
+            return true
+        }
+        return false
     }
 
     private fun printImage(image: Mat, activity: AppCompatActivity) {
@@ -435,7 +503,12 @@ class ImageTranslator(private val context: AppCompatActivity) {
         val gridTiles = splitIntoTiles(color)!!
         identifyTiles(gridTiles)
 
-        printImage(gridTiles[1][2]!!, context)
+        if (imageToDraw != null){
+            printImage(imageToDraw!!, context)
+        }
+        else {
+            printImage(gridTiles[1][1]!!, context)
+        }
     }
 
     companion object {
@@ -447,5 +520,8 @@ class ImageTranslator(private val context: AppCompatActivity) {
         private const val PIXEL_SIZE = 1
 
         private const val OUTPUT_CLASSES_COUNT = 10
+
+        private const val UP = true
+        private const val DOWN = false
     }
 }
