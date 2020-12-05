@@ -3,11 +3,16 @@ package com.example.kakuro.view
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.datahandling.DatabaseHelper
+import com.example.kakuro.gamelogic.KakuroCell
+import com.example.kakuro.gamelogic.KakuroCellBlank
+import com.example.kakuro.gamelogic.KakuroCellHint
+import com.example.kakuro.gamelogic.KakuroCellValue
 import com.example.kakuro.misc.ImageTranslator
 import kotlinx.android.synthetic.main.activity_main.*
 import org.opencv.android.OpenCVLoader
@@ -42,19 +47,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickGenerate(v: View) {
-        openCVConverter.processImage()
-//        OpenCVLoader.initDebug()
-//        // val img = Imgcodecs.imread(this.getDrawable(R.drawable.logo)?.toString())
-//
-//        val img = Mat.zeros(100, 400, CvType.CV_8UC3)
-//
-//        // convert to bitmap:
-//        val bm = Bitmap.createBitmap(img.cols(), img.rows(), Bitmap.Config.ARGB_8888)
-//        Utils.matToBitmap(img, bm)
-//
-//        // find the imageview and draw it!
-//        val iv: ImageView = findViewById<View>(R.id.imageView) as ImageView
-//        iv.setImageBitmap(bm)
+        val board = openCVConverter.processImage()
+        database.clearData()
+        database.insertData1(board.size, board.size, 0)
+        insertToDb(board)
+
+        val kakuroIntent = Intent(this, KakuroActivity::class.java)
+        val b = Bundle()
+        b.putInt("board", 2) // 0 means load saved
+        kakuroIntent.putExtras(b)
+        startActivity(kakuroIntent)
+    }
+
+    private fun insertToDb(board: Array<Array<KakuroCell?>>) {
+        for (row in board.indices) {
+            for (col in board.indices) {
+                when(val cell = board[row][col]) {
+                    is KakuroCellBlank -> {
+                        database.insertData2(row, col, 0, 0, 0) // 0 - blank
+                    }
+                    is KakuroCellValue -> {
+                        database.insertData2(row, col, 1, cell.value, 0) // 1 - value
+                    }
+                    is KakuroCellHint -> {
+                        database.insertData2(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
+                    }
+                }
+            }
+        }
     }
 
     fun goToSelect() {

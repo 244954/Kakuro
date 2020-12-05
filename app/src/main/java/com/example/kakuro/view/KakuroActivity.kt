@@ -51,6 +51,8 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
                 //boardValues = getBoardFromFile(0)
             }
             2 -> {
+                val boardValues = getBoardFromDb()
+                viewModel.startViewModelFromSavedState(size, boardValues)
                 // scan
                 //boardValues = getBoardFromFile(0)
             }

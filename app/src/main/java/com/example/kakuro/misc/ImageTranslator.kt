@@ -2,31 +2,28 @@ package com.example.kakuro.misc
 
 import android.content.res.AssetManager
 import android.graphics.Bitmap
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.gamelogic.KakuroCellBlank
+import com.example.kakuro.gamelogic.KakuroCellHint
 import com.example.kakuro.gamelogic.KakuroCellValue
-import com.example.kakuro.ml.Model
 import org.opencv.android.OpenCVLoader
 import org.opencv.android.Utils
 import org.opencv.core.*
 import org.opencv.imgcodecs.Imgcodecs
 import org.opencv.imgproc.Imgproc
-import org.tensorflow.lite.DataType
 import org.tensorflow.lite.Interpreter
-import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
-import kotlin.math.abs
-import kotlin.math.cos
-import kotlin.math.roundToInt
-import kotlin.math.sin
+import kotlin.math.*
+
+
+data class MutableTriple(var first: Rect, var second: Boolean, var third: Int)
 
 
 class ImageTranslator(private val context: AppCompatActivity) {
@@ -103,13 +100,17 @@ class ImageTranslator(private val context: AppCompatActivity) {
         return byteBuffer
     }
 
-    private fun digitRecognition(): Int {
-        val imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
-        val bitmap = Bitmap.createBitmap(imageTest.cols(), imageTest.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(imageTest, bitmap)
+    private fun digitRecognition(mat: Mat): Int {
+        // val imageTest = Utils.loadResource(context, R.drawable.imagetest, Imgcodecs.IMREAD_GRAYSCALE)
+        val bitmap = Bitmap.createBitmap(mat.cols(), mat.rows(), Bitmap.Config.ARGB_8888)
+        Utils.matToBitmap(mat, bitmap)
 
         // Preprocessing: resize the input
         val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
+        if (imageToDraw == null) {
+            //imageToDraw = Mat()
+        }
+        //Utils.bitmapToMat(resizedImage, imageToDraw)
         val byteBuffer = convertBitmapToByteBuffer(resizedImage)
 
         val result = Array(1) { FloatArray(OUTPUT_CLASSES_COUNT) }
@@ -369,6 +370,7 @@ class ImageTranslator(private val context: AppCompatActivity) {
                 color = grid[i][j]!!
                 Imgproc.cvtColor(color, gray, Imgproc.COLOR_BGR2GRAY)
                 imageSize = color.size()
+                contours.clear() // don't forget clearing arrays
 
                 // detect diagonal line
 
@@ -388,7 +390,7 @@ class ImageTranslator(private val context: AppCompatActivity) {
 
                     val contoursPoly = arrayOfNulls<MatOfPoint2f>(contours.size)
                     val boundRect: Array<Rect?>? = arrayOfNulls(contours.size)
-                    val boundRectWithDigits: MutableList<Pair<Rect, Boolean>> = arrayListOf()
+                    val boundRectWithDigits: MutableList<MutableTriple> = arrayListOf()
 
                     // detect all bounding rectangles
 
@@ -418,9 +420,13 @@ class ImageTranslator(private val context: AppCompatActivity) {
                     else {
                         // it's a hint tile
                         // now crop detected digits and pass them to NN for recognition
+                        val upNumbers: MutableList<MutableTriple> = arrayListOf()
+                        val downNumbers: MutableList<MutableTriple> = arrayListOf()
+
                         for (k in boundRectWithDigits) {
                             val currRect = k.first
                             val widthDiff = (currRect.height - currRect.width) / 2
+                            /*
                             currRect.x = currRect.x - widthDiff
                             currRect.width = currRect.height
                             if (currRect.x < 0) {
@@ -429,12 +435,41 @@ class ImageTranslator(private val context: AppCompatActivity) {
                             else if (currRect.x + currRect.width > imageSize.width) {
                                 currRect.x = imageSize.width.toInt() - 1 -currRect.width
                             }
-                            // cropped, now cut
+                            */
+
+
+
+
+
+
                             val digit = color.submat(currRect)
-                            if (i == 1 && j == 1) {
-                                imageToDraw = digit
+                            val newDigit = Mat(digit.size(), digit.type()) // it's really retarded that i have to do that
+                            digit.copyTo(newDigit)
+                            Core.copyMakeBorder(newDigit, newDigit, 0, 0, widthDiff, widthDiff,
+                                Core.BORDER_CONSTANT, Scalar(0.0, 0.0, 0.0))
+                            imageToDraw = newDigit
+                            if (isInitialized) {
+                                k.third = digitRecognition(newDigit)
+                                if (k.second == UP) {
+                                    upNumbers.add(k)
+                                }
+                                else {
+                                    downNumbers.add(k)
+                                }
                             }
                         }
+                        // insert found digits
+                        upNumbers.sortByDescending { it.first.x }
+                        downNumbers.sortByDescending { it.first.x }
+                        var rightHint = 0
+                        var downHint = 0
+                        for (l in 0 until upNumbers.size) {
+                            rightHint += upNumbers[l].third * 10.0.pow(l.toDouble()).toInt()
+                        }
+                        for (l in 0 until downNumbers.size) {
+                            downHint += downNumbers[l].third * 10.0.pow(l.toDouble()).toInt()
+                        }
+                        board[i][j] = KakuroCellHint(i, j, rightHint, downHint)
                     }
                 }
                 else {
@@ -446,27 +481,27 @@ class ImageTranslator(private val context: AppCompatActivity) {
         return board
     }
 
-    private fun addBoundRect(arr: MutableList<Pair<Rect, Boolean>>, rect: Rect) {
+    private fun addBoundRect(arr: MutableList<MutableTriple>, rect: Rect) {
         for (i in arr) {
             if (rect1InsideRect2(rect, i.first)) {
                 return // don't insert
             }
             if (rect1InsideRect2(i.first, rect)) {
                 if (rect.x > rect.y) {
-                    arr.add(Pair(rect, UP))
+                    arr.add(MutableTriple(rect, UP, 0))
                 }
                 else {
-                    arr.add(Pair(rect, DOWN))
+                    arr.add(MutableTriple(rect, DOWN, 0))
                 }
                 arr.remove(i)
                 return
             }
         }
         if (rect.x > rect.y) {
-            arr.add(Pair(rect, UP))
+            arr.add(MutableTriple(rect, UP, 0))
         }
         else {
-            arr.add(Pair(rect, DOWN))
+            arr.add(MutableTriple(rect, DOWN, 0))
         }
         return
     }
@@ -488,7 +523,7 @@ class ImageTranslator(private val context: AppCompatActivity) {
         iv.setImageBitmap(bm)
     }
 
-    fun processImage() {
+    fun processImage(): Array<Array<KakuroCell?>> {
         val color = getImage(context)
         val gray = Mat()
         getGrayImageOfOriginal(color, gray)
@@ -501,14 +536,16 @@ class ImageTranslator(private val context: AppCompatActivity) {
         getGrayImageOfOriginal(color, gray)
         detectGrid(color)
         val gridTiles = splitIntoTiles(color)!!
-        identifyTiles(gridTiles)
+        return identifyTiles(gridTiles)
 
+        /*
         if (imageToDraw != null){
             printImage(imageToDraw!!, context)
         }
         else {
             printImage(gridTiles[1][1]!!, context)
         }
+         */
     }
 
     companion object {
