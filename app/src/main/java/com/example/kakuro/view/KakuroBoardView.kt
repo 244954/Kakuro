@@ -9,7 +9,10 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.example.kakuro.R
-import com.example.kakuro.gamelogic.*
+import com.example.kakuro.gamelogic.KakuroCell
+import com.example.kakuro.gamelogic.KakuroCellBlank
+import com.example.kakuro.gamelogic.KakuroCellHint
+import com.example.kakuro.gamelogic.KakuroCellValue
 
 class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(context, attributeSet) {
 

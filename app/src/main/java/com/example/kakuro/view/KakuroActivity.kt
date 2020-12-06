@@ -1,22 +1,22 @@
 package com.example.kakuro.view
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
-import com.example.kakuro.R
-import com.example.kakuro.gamelogic.KakuroCell
-import com.example.kakuro.viewmodel.KakuroViewModel
-import kotlinx.android.synthetic.main.activity_kakuro_board.*
-import android.os.SystemClock
 import android.widget.Chronometer
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.example.kakuro.R
 import com.example.kakuro.datahandling.DatabaseHelper
 import com.example.kakuro.dialog.VictoryDialog
+import com.example.kakuro.gamelogic.KakuroCell
 import com.example.kakuro.gamelogic.KakuroCellBlank
 import com.example.kakuro.gamelogic.KakuroCellHint
 import com.example.kakuro.gamelogic.KakuroCellValue
+import com.example.kakuro.viewmodel.KakuroViewModel
+import kotlinx.android.synthetic.main.activity_kakuro_board.*
 
 
 class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, VictoryDialog.DialogListener {

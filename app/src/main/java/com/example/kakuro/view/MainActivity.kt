@@ -1,11 +1,8 @@
 package com.example.kakuro.view
 
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.datahandling.DatabaseHelper
@@ -15,11 +12,6 @@ import com.example.kakuro.gamelogic.KakuroCellHint
 import com.example.kakuro.gamelogic.KakuroCellValue
 import com.example.kakuro.misc.ImageTranslator
 import kotlinx.android.synthetic.main.activity_main.*
-import org.opencv.android.OpenCVLoader
-import org.opencv.android.Utils
-import org.opencv.core.CvType
-import org.opencv.core.Mat
-import org.opencv.imgcodecs.Imgcodecs
 
 
 class MainActivity : AppCompatActivity() {

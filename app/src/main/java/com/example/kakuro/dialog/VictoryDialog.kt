@@ -3,10 +3,8 @@ package com.example.kakuro.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDialogFragment
-import java.lang.ClassCastException
 import java.util.concurrent.TimeUnit
 
 class VictoryDialog : AppCompatDialogFragment() {

@@ -106,12 +106,8 @@ class ImageTranslator(private val context: AppCompatActivity) {
         Utils.matToBitmap(mat, bitmap)
 
         // Preprocessing: resize the input
-        val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
-        if (imageToDraw == null) {
-            //imageToDraw = Mat()
-        }
-        //Utils.bitmapToMat(resizedImage, imageToDraw)
-        val byteBuffer = convertBitmapToByteBuffer(resizedImage)
+        // val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
+        val byteBuffer = convertBitmapToByteBuffer(bitmap)
 
         val result = Array(1) { FloatArray(OUTPUT_CLASSES_COUNT) }
         interpreter?.run(byteBuffer, result)
@@ -426,27 +422,19 @@ class ImageTranslator(private val context: AppCompatActivity) {
                         for (k in boundRectWithDigits) {
                             val currRect = k.first
                             val widthDiff = (currRect.height - currRect.width) / 2
-                            /*
-                            currRect.x = currRect.x - widthDiff
-                            currRect.width = currRect.height
-                            if (currRect.x < 0) {
-                                currRect.x = 0
-                            }
-                            else if (currRect.x + currRect.width > imageSize.width) {
-                                currRect.x = imageSize.width.toInt() - 1 -currRect.width
-                            }
-                            */
-
-
-
-
-
 
                             val digit = color.submat(currRect)
                             val newDigit = Mat(digit.size(), digit.type()) // it's really retarded that i have to do that
                             digit.copyTo(newDigit)
-                            Core.copyMakeBorder(newDigit, newDigit, 0, 0, widthDiff, widthDiff,
-                                Core.BORDER_CONSTANT, Scalar(0.0, 0.0, 0.0))
+                            if (widthDiff > 0) {
+                                Core.copyMakeBorder(
+                                    newDigit, newDigit, 0, 0, widthDiff, widthDiff,
+                                    Core.BORDER_CONSTANT, Scalar(0.0, 0.0, 0.0)
+                                )
+                            }
+                            Imgproc.resize(newDigit, newDigit, Size(inputImageWidth.toDouble(),
+                                inputImageHeight.toDouble()
+                            ), 0.0, 0.0, Imgproc.INTER_AREA)
                             imageToDraw = newDigit
                             if (isInitialized) {
                                 k.third = digitRecognition(newDigit)
