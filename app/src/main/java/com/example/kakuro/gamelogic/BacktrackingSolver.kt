@@ -125,17 +125,32 @@ class Tiles {
         tiles[index] = value
     }
 
-    public companion object {
+    companion object {
         const val initialValue = 0
     }
 }
 
-class BacktrackingSolver() {
+class BacktrackingSolver(private val model: KakuroBoardModel) {
+
+    private val size = model.size
+    private val board = model.board // shortcuts
+    private val posBoard: Array<Array<ArrayList<Int>>> = Array(size) {
+        Array(size) {
+            ArrayList<Int>()
+        }
+    }
+    private val idBoard: Array<Array<Int>> = Array(size) {
+        Array(size) {
+            Tiles.initialValue - 1 // -1
+        }
+    }
+
     private val tiles = Tiles()
     private val lookup = SolverLookup()
 
     init {
         // to do
+        /*
         tiles.addTile(0, 0)
         tiles.addTile(1, 0)
         tiles.addTile(2, 0)
@@ -156,9 +171,66 @@ class BacktrackingSolver() {
         lookup.addElement(7, arrayOf(8, 9), arrayOf(5, 6, 7), 13, arrayOf(7, 9), 17)
         lookup.addElement(8, arrayOf(3), arrayOf(8, 9), 12, arrayOf(4, 6, 8), 6)
         lookup.addElement(9, arrayOf(8, 9), arrayOf(8, 9), 12, arrayOf(7, 9), 17)
+
+         */
+        calcAllPossibleValuesAndGiveIds()
+        initTiles()
+        calcLookup()
     }
 
-    fun solve(): Tiles {
+    fun solve() {
+        val calculatedTiles = backtrackingAlgorhitm()
+        applyCalculatedResult(calculatedTiles)
+    }
+
+    private fun calcAllPossibleValuesAndGiveIds() {
+        var currId = 0
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = board[row][col]
+                if (cell is KakuroCellValue) {
+                    val pos = getPossibleValues(row, col)
+                    pos.sort() // important, we need to go from smallest
+                    posBoard[row][col] = pos
+                    idBoard[row][col] = currId
+                    currId ++
+                }
+            }
+        }
+    }
+
+    private fun initTiles() {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                if (idBoard[row][col] >= Tiles.initialValue) {
+                    tiles.addTile(idBoard[row][col], 0)
+                }
+            }
+        }
+    }
+
+    private fun calcLookup() {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                if (idBoard[row][col] >= Tiles.initialValue) {
+                    val a = posBoard[row][col]
+                    val rows = model.getRow(row, col).map { Pair(it.row, it.column) }
+                    val cols = model.getColumn(row, col).map { Pair(it.row, it.column) }
+                    val indexArrRow = mutableListOf<Int>()
+                    val indexArrCol = mutableListOf<Int>()
+                    for (i in rows) {
+                        indexArrRow.add(idBoard[i.first][i.second])
+                    }
+                    for (i in cols) {
+                        indexArrCol.add(idBoard[i.first][i.second])
+                    }
+                    lookup.addElement(idBoard[row][col],posBoard[row][col].toTypedArray(),indexArrRow.toTypedArray(), model.getRowHint(row, col)!!.hintRight, indexArrCol.toTypedArray(), model.getColumnHint(row, col)!!.hintDown)
+                }
+            }
+        }
+    }
+
+    fun backtrackingAlgorhitm(): Tiles {
         val stack: Stack<Tiles> = Stack()
         var currentState = tiles
         var currentCellId = 0
@@ -190,10 +262,113 @@ class BacktrackingSolver() {
                     currentValue = currentState[currentCellId]
                 }
                 currentValue = lookup.nextValue(currentCellId, currentValue)
+                if (currentValue == 0) { // it means an error occured or board had no solution
+                    return currentState
+                }
             }
         }
         return currentState
     }
 
+    fun applyCalculatedResult(tiles: Tiles) {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                if (idBoard[row][col] >= Tiles.initialValue) {
+                    val cell = board[row][col] as KakuroCellValue
+                    cell.value = tiles[idBoard[row][col]]!!
+                }
+            }
+        }
+    }
+
+    private fun getPossibleValues(row: Int, col: Int): ArrayList<Int> {
+        var possibles = ArrayList<Int>()
+        val wholeRow = model.getRow(row, col)
+        val wholeCol = model.getColumn(row, col)
+        val rowHint = model.getRowHint(row, col)
+        val colHint = model.getColumnHint(row, col)
+
+        val rowCombinations = calcCombinations(rowHint!!.hintRight, wholeRow.size)
+        for(i in wholeRow) {
+            if (i.value != 0) { // it can't be me! Cannot discard my own value
+                rowCombinations.removeIf { j -> !j.contains(i.value)}
+            }
+        }
+        val colCombinations = calcCombinations(colHint!!.hintDown, wholeCol.size)
+        for(i in wholeCol) {
+            if (i.value != 0) {
+                colCombinations.removeIf { j -> !j.contains(i.value) }
+            }
+        }
+
+        val combinations = mergeCombinations(rowCombinations, colCombinations)
+        possibles = combinations.toCollection(ArrayList())
+
+        for(i in wholeRow) {
+            possibles.remove(i.value)
+        }
+        for(i in wholeCol) {
+            possibles.remove(i.value)
+        }
+
+
+        return possibles
+    }
+
+    companion object{
+        private fun minsum(length: Int): Int {
+            var sum = 0
+            for (i in 1..length) {
+                sum += i
+            }
+            return sum
+        }
+
+        private fun maxsum(length: Int): Int {
+            var sum = 0
+            for (i in (10 - length)..9) {
+                sum += i
+            }
+            return sum
+        }
+
+        fun calcCombinations(sum: Int, length: Int): ArrayList<Array<Int>> {
+            val combinations = ArrayList<Array<Int>>()
+
+            if (sum in 3..45 && length in 2..9 && sum in minsum(length)..maxsum(length)) {
+                calcCombinationsRec(length, 0, Array<Int>(length){ 0 }, combinations, sum)
+            }
+
+            return combinations
+        }
+
+        private fun calcCombinationsRec(length: Int, start: Int, result: Array<Int>, combinations: ArrayList<Array<Int>>, sum: Int) {
+            if (length == 0) {
+                if (result.sum() == sum) {
+                    combinations.add(result.clone())
+                }
+                return
+            }
+            for (i in start..(9 - length)) {
+                result[result.size - length] = i + 1
+                calcCombinationsRec(length - 1, i + 1, result, combinations, sum)
+            }
+        }
+
+        fun mergeCombinations(arr1: ArrayList<Array<Int>>, arr2: ArrayList<Array<Int>>): Array<Int> {
+            var combinations = Array<Int>(0) { 0 }
+            var combinations2 = Array<Int>(0) { 0 }
+
+            for (i in arr1) {
+                combinations = combinations.union(i.toSet()).toTypedArray()
+            }
+
+            for (i in arr2) {
+                combinations2 = combinations2.union(i.toSet()).toTypedArray()
+            }
+
+            return combinations.intersect(combinations2.toSet()).toTypedArray()
+        }
+    }
 
 }

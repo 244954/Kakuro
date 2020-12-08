@@ -217,8 +217,28 @@ class ExampleUnitTest {
 
     @Test
     fun backtrackingTest() {
-        val solver = BacktrackingSolver()
-        val tiles = solver.solve()
+        // val solver = BacktrackingSolver()
+        // val tiles = solver.solve()
         assertEquals(4, 4)
+    }
+
+    @Test
+    fun backtrackingSolvingTest() {
+        val kakuroBoardRaw : Array<Array<Int>> = arrayOf(
+            arrayOf(8, 2, 1 ,3, 0),
+            arrayOf(24, 4, 2, 1 ,0),
+            arrayOf(18, 4, 3, 1, 0),
+            arrayOf(9, 2, 4, 1, 0),
+            arrayOf(7, 3, 2, 1, 1),
+            arrayOf(23, 3, 2, 2, 1),
+            arrayOf(23, 3, 1, 3, 1),
+            arrayOf(6, 3, 1, 4, 1)
+        )
+
+        val kakuroBoard = KakuroBoardModel(5, kakuroBoardRaw)
+        val kakuroSolver = BacktrackingSolver(kakuroBoard)
+        kakuroSolver.solve()
+        assertEquals((kakuroBoard.board[1][3] as KakuroCellValue).value, 6)
+        assertEquals((kakuroBoard.board[1][4] as KakuroCellValue).value, 2)
     }
 }
