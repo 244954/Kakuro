@@ -214,4 +214,11 @@ class ExampleUnitTest {
 
         assertEquals(l.size, 4)
     }
+
+    @Test
+    fun backtrackingTest() {
+        val solver = BacktrackingSolver()
+        val tiles = solver.solve()
+        assertEquals(4, 4)
+    }
 }
