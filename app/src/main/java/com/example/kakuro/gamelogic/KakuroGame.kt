@@ -42,8 +42,8 @@ class KakuroGame(size: Int) {
     }
 
     fun solvePuzzle() {
-        val solver = KakuroSolver(board)
-        solver.solveTrivial()
+        val solver = BacktrackingSolver(board)
+        solver.solve()
         cellsLiveData.postValue(board.board)
     }
 

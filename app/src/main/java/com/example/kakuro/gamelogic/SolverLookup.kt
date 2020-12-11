@@ -40,5 +40,20 @@ class SolverLookup() {
         return 0 // not found
     }
 
+    fun valid(): Boolean {
+        for (i in dictionary) {
+            if (i.value.first.isEmpty()) {
+                return false
+            }
+            if (i.value.second.first.size <= 1) {
+                return false
+            }
+            if (i.value.third.first.size <= 1) {
+                return false
+            }
+        }
+        return true
+    }
+
     operator fun get(index: Int) = dictionary[index]
 }
