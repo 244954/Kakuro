@@ -6,10 +6,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.datahandling.DatabaseHelper
-import com.example.kakuro.gamelogic.KakuroCell
-import com.example.kakuro.gamelogic.KakuroCellBlank
-import com.example.kakuro.gamelogic.KakuroCellHint
-import com.example.kakuro.gamelogic.KakuroCellValue
+import com.example.kakuro.gamelogic.*
 import com.example.kakuro.misc.ImageTranslator
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -18,12 +15,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var database: DatabaseHelper
     private lateinit var openCVConverter: ImageTranslator
+    private lateinit var boardGenerator: BoardGenerator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         database = DatabaseHelper(this)
         openCVConverter = ImageTranslator(this)
+        boardGenerator = BoardGenerator()
     }
 
     fun onClickContinue(v: View) {
@@ -34,11 +33,24 @@ class MainActivity : AppCompatActivity() {
         startActivity(kakuroIntent)
     }
 
-    fun onclickbuttonstaged(v: View) {
+    fun onClickButtonStaged(v: View) {
         goToSelect()
     }
 
     fun onClickGenerate(v: View) {
+        val board = boardGenerator.generate()
+        database.clearData()
+        database.insertData1(board.size, board.size, 0)
+        insertToDb(board)
+
+        val kakuroIntent = Intent(this, KakuroActivity::class.java)
+        val b = Bundle()
+        b.putInt("board", 1) // 1 means generated
+        kakuroIntent.putExtras(b)
+        startActivity(kakuroIntent)
+    }
+
+    fun onClickFromPhoto(v: View) {
         val board = openCVConverter.processImage()
         database.clearData()
         database.insertData1(board.size, board.size, 0)
@@ -46,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
         val kakuroIntent = Intent(this, KakuroActivity::class.java)
         val b = Bundle()
-        b.putInt("board", 2) // 0 means load saved
+        b.putInt("board", 2) // 2 means scanned
         kakuroIntent.putExtras(b)
         startActivity(kakuroIntent)
     }

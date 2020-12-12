@@ -47,7 +47,8 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
                 viewModel.startViewModelFromSavedState(size, boardValues)
             }
             1 -> {
-                // generate random
+                val boardValues = getBoardFromDb()
+                viewModel.startViewModelFromSavedState(size, boardValues)
                 //boardValues = getBoardFromFile(0)
             }
             2 -> {

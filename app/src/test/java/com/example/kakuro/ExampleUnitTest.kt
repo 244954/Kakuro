@@ -1,9 +1,11 @@
 package com.example.kakuro
 
 import com.example.kakuro.gamelogic.*
+import com.example.kakuro.misc.WeightedRandomSelection
 import org.chocosolver.solver.Model
 import org.chocosolver.solver.variables.IntVar
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 
@@ -240,5 +242,21 @@ class ExampleUnitTest {
         kakuroSolver.solve()
         assertEquals((kakuroBoard.board[1][3] as KakuroCellValue).value, 6)
         assertEquals((kakuroBoard.board[1][4] as KakuroCellValue).value, 2)
+    }
+
+    @Test
+    fun weightedSelectionTest() {
+        val weightedSelection = WeightedRandomSelection<String>()
+        weightedSelection.add(10.0, "less likely").add(70.0, "more likely").add(1.0, "very unlikely")
+        for (i in 0..50) {
+            println(weightedSelection.next())
+        }
+    }
+
+    @Test
+    fun generatorTest() {
+        val boardGenerator = BoardGenerator()
+        val board = boardGenerator.generate()
+        assertNotEquals(board.size, 0)
     }
 }
