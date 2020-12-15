@@ -1,4 +1,6 @@
-package com.example.kakuro.gamelogic
+package com.example.kakuro.misc
+
+import com.example.kakuro.gamelogic.SolverLookup
 
 class Tiles {
     private var tiles: MutableMap<Int, Int>

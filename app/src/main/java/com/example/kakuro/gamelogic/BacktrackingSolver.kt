@@ -1,5 +1,6 @@
 package com.example.kakuro.gamelogic
 
+import com.example.kakuro.misc.Tiles
 import java.util.*
 
 class BacktrackingSolver(private val model: KakuroBoardModel) {

@@ -1,6 +1,7 @@
 package com.example.kakuro.gamelogic
 
 import com.example.kakuro.misc.WeightedRandomSelection
+import kotlin.math.abs
 import kotlin.random.Random
 
 class BoardGenerator {
@@ -22,7 +23,7 @@ class BoardGenerator {
             }
         }
         fillRandomly(board)
-        // correct
+        correctRects(board)
         fillHints(board)
         zeroValuesInBoard(board)
         return board
@@ -182,6 +183,32 @@ class BoardGenerator {
         }
     }
 
+    private fun correctRects(board: Array<Array<KakuroCell?>>) {
+        val model = KakuroBoardModel(size, board)
+        for (i in 0 until size) {
+            for (j in 0 until size) {
+                val square = model.getSquare2x2(i, j)
+                if (square != null) {
+                    val cell = board[i][j] as KakuroCellValue
+                    if (square[0][0].value + square[0][1].value == square[1][0].value + square[1][1].value ||
+                        square[0][0].value + square[1][0].value == square[0][1].value + square[1][1].value ||
+                            square[0][0].value == square[1][1].value) {
+                        val possibles = model.getPossibleValues(i, j)
+                        if (possibles.isNotEmpty()) {
+                            cell.value = closestNumber(possibles, cell.value) // maybe not random but closest?
+                        }
+                    }
+                    else if (square[0][1].value == square[1][0].value) {
+                        val possibles = model.getPossibleValues(i + 1, j)
+                        if (possibles.isNotEmpty()) {
+                            (board[i + 1][j] as KakuroCellValue).value = closestNumber(possibles, (board[i + 1][j] as KakuroCellValue).value)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun fillHints(board: Array<Array<KakuroCell?>>) {
         val model = KakuroBoardModel(size, board)
         for (i in 0 until size) {
@@ -217,6 +244,18 @@ class BoardGenerator {
                     cell.value = 0
                 }
             }
+        }
+    }
+
+    companion object {
+        fun closestNumber(list: ArrayList<Int>, number: Int): Int {
+            var closest = list[0]
+            for (i in list) {
+                if (abs(number - i) < abs(number - closest)) {
+                    closest = i
+                }
+            }
+            return closest
         }
     }
 }

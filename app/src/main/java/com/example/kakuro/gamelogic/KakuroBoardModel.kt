@@ -21,21 +21,18 @@ class KakuroBoardModel(val size: Int) {
             when (i[4]) {
                 0 -> { // goes to the right
                     board[i[2]][i[3] - 1] = KakuroCellHint(i[2], i[3] - 1, i[0], 0)
-                    for ( x in 0 until i[1]) {
+                    for (x in 0 until i[1]) {
                         board[i[2]][i[3] + x] = KakuroCellValue(i[2], i[3] + x, 0)
                     }
                 }
                 else -> { // goes down
-                    if (board[i[2] - 1][i[3]] is KakuroCellHint)
-                    {
+                    if (board[i[2] - 1][i[3]] is KakuroCellHint) {
                         val cell = board[i[2] - 1][i[3]] as KakuroCellHint
                         cell.hintDown = i[0]
-                    }
-                    else
-                    {
+                    } else {
                         board[i[2] - 1][i[3]] = KakuroCellHint(i[2] - 1, i[3], 0, i[0])
                     }
-                    for ( x in 0 until i[1]) {
+                    for (x in 0 until i[1]) {
                         board[i[2] + x][i[3]] = KakuroCellValue(i[2] + x, i[3], 0)
                     }
                 }
@@ -48,7 +45,7 @@ class KakuroBoardModel(val size: Int) {
         }
     }
 
-    fun getCell(row: Int, col: Int) : KakuroCell? {
+    fun getCell(row: Int, col: Int): KakuroCell? {
         /*
         if (board[row][col] is KakuroCellValue)
         {
@@ -62,7 +59,7 @@ class KakuroBoardModel(val size: Int) {
             null
     }
 
-    fun getRow(row: Int, col: Int) : ArrayList<KakuroCellValue> {
+    fun getRow(row: Int, col: Int): ArrayList<KakuroCellValue> {
 
         val cells = ArrayList<KakuroCellValue>()
 
@@ -89,7 +86,7 @@ class KakuroBoardModel(val size: Int) {
         return cells
     }
 
-    fun getColumn(row: Int, col: Int) : ArrayList<KakuroCellValue> {
+    fun getColumn(row: Int, col: Int): ArrayList<KakuroCellValue> {
 
         val cells = ArrayList<KakuroCellValue>()
 
@@ -129,7 +126,7 @@ class KakuroBoardModel(val size: Int) {
                         newElem.add(Pair(cel.hintDown, cel.hintDown))
                         while (newRow < size && board[newRow][col] is KakuroCellValue) {
                             newElem.add(Pair(newRow, col))
-                            newRow ++
+                            newRow++
                         }
                         coords.add(newElem)
                     }
@@ -139,7 +136,7 @@ class KakuroBoardModel(val size: Int) {
                         newElem.add(Pair(cel.hintRight, cel.hintRight))
                         while (newCol < size && board[row][newCol] is KakuroCellValue) {
                             newElem.add(Pair(row, newCol))
-                            newCol ++
+                            newCol++
                         }
                         coords.add(newElem)
                     }
@@ -150,7 +147,7 @@ class KakuroBoardModel(val size: Int) {
         return coords
     }
 
-    fun getRowHint(row: Int, col: Int) : KakuroCellHint? {
+    fun getRowHint(row: Int, col: Int): KakuroCellHint? {
         if (row in 0 until size && col in 0 until size) {
             var cell = board[row][col]!!
             if (cell is KakuroCellValue) {
@@ -168,7 +165,7 @@ class KakuroBoardModel(val size: Int) {
         return null
     }
 
-    fun getColumnHint(row: Int, col: Int) : KakuroCellHint? {
+    fun getColumnHint(row: Int, col: Int): KakuroCellHint? {
         if (row in 0 until size && col in 0 until size) {
             var cell = board[row][col]!!
             if (cell is KakuroCellValue) {
@@ -186,7 +183,42 @@ class KakuroBoardModel(val size: Int) {
         return null
     }
 
-    fun isFinished() : Boolean {
+    fun getSquare2x2(row: Int, col: Int): Array<Array<KakuroCellValue>>? {
+        if (row >= size || col >= size || board[row][col] !is KakuroCellValue) {
+            return null
+        }
+        if (row + 1 >= size || board[row + 1][col] !is KakuroCellValue) {
+            return null
+        }
+        if (col + 1 >= size || board[row][col + 1] !is KakuroCellValue) {
+            return null
+        }
+        if (board[row + 1][col + 1] !is KakuroCellValue) {
+            return null
+        }
+        return arrayOf(
+            arrayOf(board[row][col] as KakuroCellValue, board[row][col + 1] as KakuroCellValue),
+            arrayOf(
+                board[row + 1][col] as KakuroCellValue,
+                board[row + 1][col + 1] as KakuroCellValue
+            )
+        )
+    }
+
+    fun getPossibleValues(row: Int, col: Int): ArrayList<Int> {
+        val wholeRow = getRow(row, col)
+        val wholeCol = getColumn(row, col)
+        val possibles = arrayListOf(1, 2, 3, 4, 5, 6, 7, 8, 9)
+        for (i in wholeRow) {
+            possibles.remove(i.value)
+        }
+        for (i in wholeCol) {
+            possibles.remove(i.value)
+        }
+        return possibles
+    }
+
+    fun isFinished(): Boolean {
         for (row in 0 until size) {
             for (col in 0 until size) {
                 val cell = board[row][col]
