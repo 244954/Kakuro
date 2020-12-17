@@ -88,12 +88,13 @@ class ImageTranslator(private val context: AppCompatActivity) {
         bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
 
         for (pixelValue in pixels) {
-            val r = (pixelValue shr 16 and 0xFF)
-            val g = (pixelValue shr 8 and 0xFF)
-            val b = (pixelValue and 0xFF)
+            val alpha = (pixelValue shr 24 and 0xFF).toFloat()
+            val r = (pixelValue shr 16 and 0xFF).toFloat()
+            val g = (pixelValue shr 8 and 0xFF).toFloat()
+            val b = (pixelValue and 0xFF).toFloat()
 
             // Convert RGB to grayscale and normalize pixel value to [0..1]
-            val normalizedPixelValue = (r + g + b) / 3.0f / 255.0f
+            val normalizedPixelValue = (r * 0.2989f + g * 0.587f + b * 0.114f) / 255.0f
             byteBuffer.putFloat(normalizedPixelValue)
         }
 
@@ -106,13 +107,15 @@ class ImageTranslator(private val context: AppCompatActivity) {
         Utils.matToBitmap(mat, bitmap)
 
         // Preprocessing: resize the input
-        // val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
-        val byteBuffer = convertBitmapToByteBuffer(bitmap)
+        val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
+        val byteBuffer = convertBitmapToByteBuffer(resizedImage)
 
         val result = Array(1) { FloatArray(OUTPUT_CLASSES_COUNT) }
         interpreter?.run(byteBuffer, result)
 
-        return getOutputString(result[0])
+        val resultCorrected = result[0]
+        resultCorrected[1] = resultCorrected[7].also { resultCorrected[7] = resultCorrected[1] } // swap
+        return getOutputString(resultCorrected)
     }
 
     private fun getOutputString(output: FloatArray): Int {
@@ -539,7 +542,7 @@ class ImageTranslator(private val context: AppCompatActivity) {
     companion object {
         private const val TAG = "DigitClassifier"
 
-        private const val MODEL_FILE = "mnist.tflite"
+        private const val MODEL_FILE = "mnist2.tflite"
 
         private const val FLOAT_TYPE_SIZE = 4
         private const val PIXEL_SIZE = 1
