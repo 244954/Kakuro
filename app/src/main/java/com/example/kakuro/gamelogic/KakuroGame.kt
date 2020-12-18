@@ -47,6 +47,11 @@ class KakuroGame(size: Int) {
         cellsLiveData.postValue(board.board)
     }
 
+    fun numberOfSolutions() {
+        val solver = BacktrackingSolver(board)
+        solver.manySolutions()
+    }
+
     fun updateTime(timePassed: Long) {
         this.timePassed = timePassed
     }

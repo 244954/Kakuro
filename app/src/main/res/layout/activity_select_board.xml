@@ -63,6 +63,30 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView3" android:layout_marginTop="8dp"
                 android:tag="7" android:onClick="onClickSelectBoard"/>
 
+        <Button
+                android:text="@string/board8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/boardbutton8"
+                app:layout_constraintTop_toBottomOf="@+id/boardbutton7" android:layout_marginTop="8dp"
+                android:tag="8" android:onClick="onClickSelectBoard"/>
+
+        <Button
+                android:text="@string/board9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/boardbutton9"
+                app:layout_constraintTop_toBottomOf="@+id/boardbutton8" android:layout_marginTop="8dp"
+                android:tag="9" android:onClick="onClickSelectBoard"/>
+
+        <Button
+                android:text="@string/board10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/boardbutton10"
+                app:layout_constraintTop_toBottomOf="@+id/boardbutton9" android:layout_marginTop="8dp"
+                android:tag="10" android:onClick="onClickSelectBoard"/>
+
         <TextView
                 android:text="@string/largeKakuros"
                 android:layout_width="wrap_content"
@@ -71,7 +95,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_marginEnd="8dp" app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginStart="8dp"
-                app:layout_constraintHorizontal_bias="0.501" app:layout_constraintTop_toBottomOf="@+id/boardbutton7"/>
+                app:layout_constraintHorizontal_bias="0.501" app:layout_constraintTop_toBottomOf="@+id/boardbutton10"/>
 
         <Button
                 android:text="@string/board11"
@@ -80,5 +104,29 @@
                 android:id="@+id/boardbutton11"
                 app:layout_constraintTop_toBottomOf="@+id/textView5" android:layout_marginTop="8dp"
                 android:tag="11" android:onClick="onClickSelectBoard"/>
+
+        <Button
+                android:text="@string/board12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/boardbutton12"
+                app:layout_constraintTop_toBottomOf="@+id/boardbutton11" android:layout_marginTop="8dp"
+                android:tag="12" android:onClick="onClickSelectBoard"/>
+
+        <Button
+                android:text="@string/board13"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/boardbutton13"
+                app:layout_constraintTop_toBottomOf="@+id/boardbutton12" android:layout_marginTop="8dp"
+                android:tag="13" android:onClick="onClickSelectBoard"/>
+
+        <Button
+                android:text="@string/board14"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/boardbutton14"
+                app:layout_constraintTop_toBottomOf="@+id/boardbutton13" android:layout_marginTop="8dp"
+                android:tag="14" android:onClick="onClickSelectBoard"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

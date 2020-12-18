@@ -37,6 +37,18 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
         }
     }
 
+    fun manySolutions() {
+        if (lookup.valid()) {
+            val res = backtrackingAlgorithmMoreSolutions()
+            if (res) {
+                println("---------More than one solution found!-------")
+            }
+            else {
+                println("-----------Only one solution found!---------")
+            }
+        }
+    }
+
     private fun calcAllPossibleValuesAndGiveIds() {
         var currId = 0
         for (row in 0 until size) {
@@ -82,6 +94,75 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
                 }
             }
         }
+    }
+
+    private fun backtrackingAlgorithmMoreSolutions(): Boolean {
+        val stack: Stack<Tiles> = Stack()
+        var currentState = tiles
+        var currentCellId = 0
+        var currentValue = lookup[currentCellId]!!.first.min()
+        var numberOfOperations = 0
+        var correctSolutions = 0
+        stack.push(currentState.copy()) // insert copy
+        while (currentState.emptyCellsExist()) {
+            currentState[currentCellId] = currentValue!!
+            numberOfOperations++
+            if (currentState.noDuplicatesForTile(currentCellId, lookup) && currentState.notExceededForTileOrCompleted(currentCellId, lookup)) {
+                // remember we have to copy state at some point
+                if(currentState.emptyCellsExist()) {
+                    stack.push(currentState.copy()) // insert copy
+                    currentCellId = currentState.nextAvailableCellIndex(currentCellId)
+                    currentValue = lookup[currentCellId]!!.first.min()
+                }
+                else {
+                    correctSolutions ++
+                    if (correctSolutions > 1) {
+                        return true
+                    }
+                    if (currentState.lastSolution(lookup)) { // we reached the end
+                        return false
+                    }
+                    currentState = stack.pop()
+                    currentCellId = currentState.prevAvailableIndex(currentCellId) // makeshift solution, we process them in order of their placement
+                    currentValue = currentState[currentCellId]
+                    while (!lookup.hasNextValue(currentCellId, currentValue!!)) {
+                        currentState = stack.pop()
+                        currentCellId = currentState.prevAvailableIndex(currentCellId)
+                        if (currentCellId < 0) {
+                            return false
+                        }
+                        currentValue = currentState[currentCellId]
+                    }
+                    currentValue = lookup.nextValue(currentCellId, currentValue)
+                    if (currentValue == 0) { // it means board had no more solutions
+                        return false
+                    }
+
+                }
+            }
+            else if ((currentState.underSumForTile(currentCellId, lookup) || !currentState.noDuplicatesForTile(currentCellId, lookup)) && lookup.hasNextValue(currentCellId, currentValue)) {
+                currentState[currentCellId] = Tiles.initialValue // zero it before it gets considered by while loop
+                currentValue = lookup.nextValue(currentCellId, currentValue)
+            }
+            else {
+                currentState = stack.pop()
+                currentCellId = currentState.prevAvailableIndex(currentCellId) // makeshift solution, we process them in order of their placement
+                currentValue = currentState[currentCellId]
+                while (!lookup.hasNextValue(currentCellId, currentValue!!)) {
+                    currentState = stack.pop()
+                    currentCellId = currentState.prevAvailableIndex(currentCellId)
+                    if (currentCellId < 0) {
+                        return false
+                    }
+                    currentValue = currentState[currentCellId]
+                }
+                currentValue = lookup.nextValue(currentCellId, currentValue)
+                if (currentValue == 0) { // it means board had no more solutions
+                    return false
+                }
+            }
+        }
+        return false // technically it should never reach this
     }
 
     private fun backtrackingAlgorithm(): Tiles {
@@ -135,7 +216,7 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
         }
     }
 
-    private fun getPossibleValues(row: Int, col: Int): ArrayList<Int> {
+    fun getPossibleValues(row: Int, col: Int): ArrayList<Int> {
         var possibles = ArrayList<Int>()
         val wholeRow = model.getRow(row, col)
         val wholeCol = model.getColumn(row, col)

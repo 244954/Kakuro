@@ -1,6 +1,7 @@
 package com.example.kakuro
 
 import com.example.kakuro.gamelogic.*
+import com.example.kakuro.misc.TestBoards
 import com.example.kakuro.misc.WeightedRandomSelection
 import org.chocosolver.solver.Model
 import org.chocosolver.solver.variables.IntVar
@@ -258,5 +259,92 @@ class ExampleUnitTest {
         val boardGenerator = BoardGenerator()
         val board = boardGenerator.generate()
         assertNotEquals(board.size, 0)
+    }
+
+    @Test
+    fun boardTesterTest() {
+        // val string = "5\n8 2 1 3 0\n24 4 2 1 0\n18 4 3 1 0\n9 2 4 1 0\n7 3 2 1 1\n23 3 2 2 1\n23 3 1 3 1\n6 3 1 4 1"
+        // val string = "5\n17 3 1 1 0\n11 3 2 1 0\n21 3 3 2 0\n10 3 4 2 0\n7 2 1 1 1\n30 4 1 2 1\n10 4 1 3 1\n12 2 3 4 1"
+        // val string = "5\n8 2 1 1 0\n15 3 2 1 0\n11 3 3 2 0\n13 2 4 3 0\n16 2 1 1 1\n7 3 1 2 1\n7 3 2 3 1\n17 2 3 4 1"
+        val string = "13\n" +
+                "14 4 1 3 0\n" +
+                "10 2 1 9 0\n" +
+                "19 4 2 3 0\n" +
+                "18 3 2 9 0\n" +
+                "8 2 3 2 0\n" +
+                "3 2 3 6 0\n" +
+                "16 2 3 11 0\n" +
+                "8 2 4 1 0\n" +
+                "22 4 4 5 0\n" +
+                "22 3 4 10 0\n" +
+                "10 2 5 1 0\n" +
+                "8 2 5 5 0\n" +
+                "18 3 5 8 0\n" +
+                "22 4 6 1 0\n" +
+                "11 2 6 9 0\n" +
+                "12 2 7 3 0\n" +
+                "22 4 7 9 0\n" +
+                "10 3 8 3 0\n" +
+                "16 2 8 7 0\n" +
+                "6 2 8 11 0\n" +
+                "15 3 9 1 0\n" +
+                "17 4 9 5 0\n" +
+                "12 2 9 11 0\n" +
+                "13 2 10 1 0\n" +
+                "9 2 10 6 0\n" +
+                "10 2 10 10 0\n" +
+                "12 3 11 2 0\n" +
+                "16 4 11 7 0\n" +
+                "8 2 12 3 0\n" +
+                "21 4 12 7 0\n" +
+                "6 3 4 1 1\n" +
+                "16 2 9 1 1\n" +
+                "30 4 3 2 1\n" +
+                "7 3 9 2 1\n" +
+                "7 3 1 3 1\n" +
+                "30 4 6 3 1\n" +
+                "16 2 11 3 1\n" +
+                "17 2 1 4 1\n" +
+                "6 3 6 4 1\n" +
+                "3 2 11 4 1\n" +
+                "3 2 1 5 1\n" +
+                "16 2 4 5 1\n" +
+                "3 2 8 5 1\n" +
+                "15 5 1 6 1\n" +
+                "3 2 9 6 1\n" +
+                "3 2 3 7 1\n" +
+                "34 5 8 7 1\n" +
+                "16 2 4 8 1\n" +
+                "17 2 8 8 1\n" +
+                "4 2 11 8 1\n" +
+                "17 2 1 9 1\n" +
+                "7 3 5 9 1\n" +
+                "17 2 11 9 1\n" +
+                "3 2 1 10 1\n" +
+                "29 4 4 10 1\n" +
+                "6 3 10 10 1\n" +
+                "24 3 2 11 1\n" +
+                "29 4 7 11 1\n" +
+                "17 2 3 12 1\n" +
+                "7 3 7 12 1"
+        val size = TestBoards.getSize(string)
+        val arr = TestBoards.getBoardFromFile(string)
+        val board = KakuroBoardModel(size, arr)
+        val solver = BacktrackingSolver(board)
+        var solutions = 1L
+        val solList = mutableListOf<Long>()
+        for (i in board.board) {
+            for (j in i) {
+                if (j is KakuroCellValue) {
+                    val pos = solver.getPossibleValues(j.row, j.column).size.toLong()
+                    solList.add(pos)
+                    solutions *= pos
+                }
+            }
+        }
+        solList.sort()
+        val numbers =  solList.groupingBy { it }.eachCount()
+
+        solutions *= 1L
     }
 }

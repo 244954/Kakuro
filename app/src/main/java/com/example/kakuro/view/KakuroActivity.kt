@@ -42,16 +42,16 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         database = DatabaseHelper(this)
 
         when(boardNumber!!) {
-            0 -> {
+            0 -> { // saved
                 val boardValues = getBoardFromDb()
                 viewModel.startViewModelFromSavedState(size, boardValues)
             }
-            1 -> {
+            1 -> { // generated
                 val boardValues = getBoardFromDb()
                 viewModel.startViewModelFromSavedState(size, boardValues)
                 //boardValues = getBoardFromFile(0)
             }
-            2 -> {
+            2 -> { // scanned
                 val boardValues = getBoardFromDb()
                 viewModel.startViewModelFromSavedState(size, boardValues)
                 // scan
@@ -81,6 +81,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         }
 
         buttonSolve.setOnClickListener {
+            viewModel.kakuroGame.numberOfSolutions()
             viewModel.kakuroGame.solvePuzzle()
         }
     }

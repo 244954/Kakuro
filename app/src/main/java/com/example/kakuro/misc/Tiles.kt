@@ -22,6 +22,15 @@ class Tiles {
         return Tiles(newTiles)
     }
 
+    fun lastSolution(lookup: SolverLookup): Boolean {
+        for (i in tiles) {
+            if (lookup.hasNextValue(i.key, i.value)) {
+                return false
+            }
+        }
+        return true
+    }
+
     fun emptyCellsExist(): Boolean {
         for (i in tiles) {
             if (i.value == initialValue) {
