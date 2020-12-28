@@ -26,7 +26,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
     }
 
-    fun insertData1(rows: Int, columns: Int, time: Long) : Boolean {
+    fun insertDataGeneral(rows: Int, columns: Int, time: Long) : Boolean {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(Tab1Col2, rows)
@@ -37,7 +37,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return (result != -1L)
     }
 
-    fun insertData2(row: Int, column: Int, type: Int, val1: Int, val2: Int) : Boolean {
+    fun insertDataBoard(row: Int, column: Int, type: Int, val1: Int, val2: Int) : Boolean {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(Tab2Col2, row)
@@ -50,7 +50,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return (result != -1L)
     }
 
-    fun getData1() : Cursor {
+    fun getDataGeneral() : Cursor {
         val db = this.writableDatabase
         val result = db.rawQuery("select * from $TableName1", null)
         if (result.count == 1) {
@@ -59,7 +59,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         return result
     }
 
-    fun getData2() : Cursor {
+    fun getDataBoard() : Cursor {
         val db = this.writableDatabase
         val result = db.rawQuery("select * from $TableName2", null)
         if (result.count == 1) {

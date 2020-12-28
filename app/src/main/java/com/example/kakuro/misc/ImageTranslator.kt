@@ -1,7 +1,10 @@
 package com.example.kakuro.misc
 
+import android.content.ContentResolver
 import android.content.res.AssetManager
 import android.graphics.Bitmap
+import android.net.Uri
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -107,7 +110,12 @@ class ImageTranslator(private val context: AppCompatActivity) {
         Utils.matToBitmap(mat, bitmap)
 
         // Preprocessing: resize the input
-        val resizedImage = Bitmap.createScaledBitmap(bitmap, inputImageWidth, inputImageHeight, true)
+        val resizedImage = Bitmap.createScaledBitmap(
+            bitmap,
+            inputImageWidth,
+            inputImageHeight,
+            true
+        )
         val byteBuffer = convertBitmapToByteBuffer(resizedImage)
 
         val result = Array(1) { FloatArray(OUTPUT_CLASSES_COUNT) }
@@ -124,6 +132,12 @@ class ImageTranslator(private val context: AppCompatActivity) {
 
     private fun getImage(activity: AppCompatActivity): Mat {
         return Utils.loadResource(activity, R.drawable.kakuro_image, Imgcodecs.IMREAD_COLOR)
+    }
+
+    private fun getImageFromBitmap(bitmap: Bitmap): Mat {
+        val mat = Mat()
+        Utils.bitmapToMat(bitmap, mat)
+        return mat
     }
 
     private fun getGrayImageOfOriginal(original: Mat, dest: Mat): Mat {
@@ -435,9 +449,12 @@ class ImageTranslator(private val context: AppCompatActivity) {
                                     Core.BORDER_CONSTANT, Scalar(0.0, 0.0, 0.0)
                                 )
                             }
-                            Imgproc.resize(newDigit, newDigit, Size(inputImageWidth.toDouble(),
-                                inputImageHeight.toDouble()
-                            ), 0.0, 0.0, Imgproc.INTER_AREA)
+                            Imgproc.resize(
+                                newDigit, newDigit, Size(
+                                    inputImageWidth.toDouble(),
+                                    inputImageHeight.toDouble()
+                                ), 0.0, 0.0, Imgproc.INTER_AREA
+                            )
                             imageToDraw = newDigit
                             if (isInitialized) {
                                 k.third = digitRecognition(newDigit)
@@ -514,8 +531,12 @@ class ImageTranslator(private val context: AppCompatActivity) {
         iv.setImageBitmap(bm)
     }
 
-    fun processImage(): Array<Array<KakuroCell?>> {
-        val color = getImage(context)
+    fun processImage(bitmap: Bitmap?): Array<Array<KakuroCell?>> {
+        val color: Mat = if (bitmap == null) {
+            getImage(context)
+        } else {
+            getImageFromBitmap(bitmap)
+        }
         val gray = Mat()
         getGrayImageOfOriginal(color, gray)
         initialGaussBlur(gray)
@@ -528,15 +549,6 @@ class ImageTranslator(private val context: AppCompatActivity) {
         detectGrid(color)
         val gridTiles = splitIntoTiles(color)!!
         return identifyTiles(gridTiles)
-
-        /*
-        if (imageToDraw != null){
-            printImage(imageToDraw!!, context)
-        }
-        else {
-            printImage(gridTiles[1][1]!!, context)
-        }
-         */
     }
 
     companion object {

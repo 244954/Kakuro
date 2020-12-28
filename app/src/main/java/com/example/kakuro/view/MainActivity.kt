@@ -1,7 +1,12 @@
 package com.example.kakuro.view
 
+import android.app.ProgressDialog
+import android.content.ContentResolver
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
@@ -16,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var database: DatabaseHelper
     private lateinit var openCVConverter: ImageTranslator
     private lateinit var boardGenerator: BoardGenerator
+
+    private var image: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     fun onClickGenerate(v: View) {
         val board = boardGenerator.generate()
         database.clearData()
-        database.insertData1(board.size, board.size, 0)
+        database.insertDataGeneral(board.size, board.size, 0)
         insertToDb(board)
 
         val kakuroIntent = Intent(this, KakuroActivity::class.java)
@@ -51,16 +58,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickFromPhoto(v: View) {
-        val board = openCVConverter.processImage()
-        database.clearData()
-        database.insertData1(board.size, board.size, 0)
-        insertToDb(board)
+        val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        startActivityForResult(gallery, pickImage)
+    }
 
-        val kakuroIntent = Intent(this, KakuroActivity::class.java)
-        val b = Bundle()
-        b.putInt("board", 2) // 2 means scanned
-        kakuroIntent.putExtras(b)
-        startActivity(kakuroIntent)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == pickImage) {
+
+            val imageUri = data?.data
+            image = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
+
+            val board = openCVConverter.processImage(image)
+            database.clearData()
+            database.insertDataGeneral(board.size, board.size, 0)
+            insertToDb(board)
+
+            val kakuroIntent = Intent(this, KakuroActivity::class.java)
+            val b = Bundle()
+            b.putInt("board", 2) // 2 means scanned
+            kakuroIntent.putExtras(b)
+            startActivity(kakuroIntent)
+        }
     }
 
     private fun insertToDb(board: Array<Array<KakuroCell?>>) {
@@ -68,20 +87,20 @@ class MainActivity : AppCompatActivity() {
             for (col in board.indices) {
                 when(val cell = board[row][col]) {
                     is KakuroCellBlank -> {
-                        database.insertData2(row, col, 0, 0, 0) // 0 - blank
+                        database.insertDataBoard(row, col, 0, 0, 0) // 0 - blank
                     }
                     is KakuroCellValue -> {
-                        database.insertData2(row, col, 1, cell.value, 0) // 1 - value
+                        database.insertDataBoard(row, col, 1, cell.value, 0) // 1 - value
                     }
                     is KakuroCellHint -> {
-                        database.insertData2(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
+                        database.insertDataBoard(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
                     }
                 }
             }
         }
     }
 
-    fun goToSelect() {
+    private fun goToSelect() {
         val kakuroIntent = Intent(this, SelectBoardActivity::class.java)
         startActivity(kakuroIntent)
     }
@@ -92,8 +111,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getData1() {
-        val cursor = database.getData1()
+        val cursor = database.getDataGeneral()
         button_continue.isEnabled = ( cursor.count == 1 )
         cursor.close()
+    }
+
+    companion object {
+        private val pickImage = 100
     }
 }

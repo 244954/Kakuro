@@ -89,7 +89,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
     override fun onDestroy() {
         if (!gameIsFinished) { // inelegant but whatever
             database.clearData()
-            database.insertData1(size, size, SystemClock.elapsedRealtime() - chronometer!!.base)
+            database.insertDataGeneral(size, size, SystemClock.elapsedRealtime() - chronometer!!.base)
             insertToDb() // insert to table 2
         }
 
@@ -180,13 +180,13 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             for (col in 0 until size) {
                 when(val cell = viewModel.kakuroGame.getCell(row, col)) {
                     is KakuroCellBlank -> {
-                        database.insertData2(row, col, 0, 0, 0) // 0 - blank
+                        database.insertDataBoard(row, col, 0, 0, 0) // 0 - blank
                     }
                     is KakuroCellValue -> {
-                        database.insertData2(row, col, 1, cell.value, 0) // 1 - value
+                        database.insertDataBoard(row, col, 1, cell.value, 0) // 1 - value
                     }
                     is KakuroCellHint -> {
-                        database.insertData2(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
+                        database.insertDataBoard(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
                     }
                 }
             }
@@ -195,7 +195,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
 
     private fun getBoardFromDb() : Array<Array<KakuroCell?>> {
         // Get size and time from db
-        val cursor = database.getData1()
+        val cursor = database.getDataGeneral()
         if (cursor.count == 1) {
             cursor.moveToFirst()
             size = cursor.getString(1).toInt()
@@ -208,7 +208,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         }
 
         // Get board from db
-        val cursor2 = database.getData2()
+        val cursor2 = database.getDataBoard()
         if (cursor2.count > 0) {
             while (cursor2.moveToNext()) {
                 val row = cursor2.getString(1).toInt()
