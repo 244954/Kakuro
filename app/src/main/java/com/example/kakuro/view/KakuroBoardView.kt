@@ -28,13 +28,13 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
     private val thickLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.DKGRAY
+        color = Color.BLACK
         strokeWidth = 6F
     }
 
     private val thinLinePaint = Paint().apply {
         style = Paint.Style.STROKE
-        color = Color.parseColor("#77787a")
+        color = Color.BLACK
         strokeWidth = 3F
     }
 
@@ -57,13 +57,13 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
 
     private val littleTextPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#77787a")
+        color = Color.BLACK
         textSize = 64F
     }
 
     private val blankCellPaint = Paint().apply {
         style = Paint.Style.FILL_AND_STROKE
-        color = Color.parseColor("#000308")
+        color = Color.parseColor("#8a8f99")
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -102,7 +102,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                 val col = it.column
                 when (it) {
                     is KakuroCellValue -> {
-                        val cell = it as KakuroCellValue
+                        val cell = it
                         if ( cell.value != 0) { // don't print zeros
                             val paint : Paint = if (cell.wrongCol || cell.wrongRow) {
                                 textPaintError
@@ -124,6 +124,7 @@ class KakuroBoardView(context: Context, attributeSet: AttributeSet) : View(conte
                     }
                     is KakuroCellBlank -> {
                         canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)
+                        canvas?.drawLine(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, thinLinePaint)
                     }
                     is KakuroCellHint -> {
                         canvas?.drawRect(col * cellSizePixels, row * cellSizePixels, (col + 1) * cellSizePixels, (row + 1) * cellSizePixels, blankCellPaint)

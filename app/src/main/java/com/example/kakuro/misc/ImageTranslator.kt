@@ -357,7 +357,7 @@ class ImageTranslator(private val context: AppCompatActivity) {
                 } else {
                     (pt2.y - pt1.y) / (pt2.x - pt1.x)
                 }
-                if (abs(slope - 1.0) < 0.01) {  // needs more specific epsilon!
+                if (abs(slope - 1.0) < 0.1) {  // needs more specific epsilon!
                     return true
                 }
             }

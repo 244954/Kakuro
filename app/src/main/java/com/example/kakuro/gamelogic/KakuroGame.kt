@@ -95,7 +95,7 @@ class KakuroGame(size: Int) {
         if (rowValues.contains(0)) {
             rowValues.removeAll(listOf(0))
 
-            if (rowValues.size != rowValues.distinct().size || rowValues.sum() > rowHint!!) { // something repeats or it's too much
+            if (rowValues.size != rowValues.distinct().size || (rowHint != null && rowValues.sum() > rowHint)) { // something repeats or it's too much
                 rowItems.forEach {
                     it.wrongRow = true
                 }
@@ -135,7 +135,7 @@ class KakuroGame(size: Int) {
         if (colValues.contains(0)) {
             colValues.removeAll(listOf(0))
 
-            if (colValues.size != colValues.distinct().size || colValues.sum() > colHint!!) { // something repeats or it's too much
+            if (colValues.size != colValues.distinct().size || (colHint != null && colValues.sum() > colHint)) { // something repeats or it's too much
                 colItems.forEach {
                     it.wrongCol = true
                 }
