@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickGenerate(v: View) {
         // display dialog
-        val alert: androidx.appcompat.app.AlertDialog.Builder = androidx.appcompat.app.AlertDialog.Builder(
+        val alert: AlertDialog.Builder = AlertDialog.Builder(
             this
         )
         val inflater = layoutInflater

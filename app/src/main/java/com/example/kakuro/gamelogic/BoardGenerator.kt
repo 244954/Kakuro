@@ -24,7 +24,9 @@ class BoardGenerator {
         fillRandomly(board)
         correctRects(board)
         fillHints(board)
+
         zeroValuesInBoard(board)
+        giveExtraHints(board) // experimental
         return board
     }
 
@@ -232,6 +234,15 @@ class BoardGenerator {
                     }
                 }
             }
+        }
+    }
+
+    private fun giveExtraHints(board: Array<Array<KakuroCell?>>) {
+        val model = KakuroBoardModel(size, board)
+        val solver = BacktrackingSolver(model.deepCopy())
+        if (solver.manySolutions()) {
+            val params = solver.mostDubiousField()
+            model.setCell(params.first, params.second, params.third)
         }
     }
 

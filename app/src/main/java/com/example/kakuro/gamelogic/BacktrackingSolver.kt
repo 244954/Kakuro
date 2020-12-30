@@ -37,7 +37,7 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
         }
     }
 
-    fun manySolutions() {
+    fun manySolutions(): Boolean {
         if (lookup.valid()) {
             val res = backtrackingAlgorithmMoreSolutions()
             if (res) {
@@ -46,7 +46,27 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
             else {
                 println("-----------Only one solution found!---------")
             }
+            return res
         }
+        return false
+    }
+
+    fun mostDubiousField(): Triple<Int, Int, Int> { // row, col, value
+        var maxRow = -1
+        var maxCol = -1
+        var maxVal = 0
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                if (posBoard[row][col].isNotEmpty()) {
+                    if (posBoard[row][col].size > maxVal) {
+                        maxRow = row
+                        maxCol = col
+                        maxVal = posBoard[row][col].size
+                    }
+                }
+            }
+        }
+        return Triple(maxRow, maxCol, maxVal)
     }
 
     private fun calcAllPossibleValuesAndGiveIds() {

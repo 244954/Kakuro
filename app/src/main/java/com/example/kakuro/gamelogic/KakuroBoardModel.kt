@@ -45,6 +45,18 @@ class KakuroBoardModel(val size: Int) {
         }
     }
 
+    fun deepCopy(): KakuroBoardModel {
+        val newBoard: Array<Array<KakuroCell?>> = Array(size) {
+            arrayOfNulls<KakuroCell>(size)
+        }
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                newBoard[row][col] = board[row][col]?.copy()
+            }
+        }
+        return KakuroBoardModel(size, newBoard)
+    }
+
     fun getCell(row: Int, col: Int): KakuroCell? {
         /*
         if (board[row][col] is KakuroCellValue)
@@ -230,5 +242,14 @@ class KakuroBoardModel(val size: Int) {
             }
         }
         return true
+    }
+
+    fun setCell(row: Int, col: Int, value: Int) {
+        if (row in 0 until size && col in 0 until size) {
+            val cell = board[row][col]!!
+            if (cell is KakuroCellValue) {
+                cell.value = value
+            }
+        }
     }
 }

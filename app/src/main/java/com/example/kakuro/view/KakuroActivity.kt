@@ -81,7 +81,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         }
 
         buttonSolve.setOnClickListener {
-            viewModel.kakuroGame.numberOfSolutions()
+            // viewModel.kakuroGame.numberOfSolutions()
             viewModel.kakuroGame.solvePuzzle()
         }
     }
