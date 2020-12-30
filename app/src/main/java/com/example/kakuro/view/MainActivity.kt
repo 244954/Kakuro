@@ -1,13 +1,13 @@
 package com.example.kakuro.view
 
-import android.app.ProgressDialog
-import android.content.ContentResolver
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.kakuro.R
 import com.example.kakuro.datahandling.DatabaseHelper
@@ -45,16 +45,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickGenerate(v: View) {
-        val board = boardGenerator.generate()
-        database.clearData()
-        database.insertDataGeneral(board.size, board.size, 0)
-        insertToDb(board)
+        // display dialog
+        val alert: androidx.appcompat.app.AlertDialog.Builder = androidx.appcompat.app.AlertDialog.Builder(
+            this
+        )
+        val inflater = layoutInflater
+        val view: View =
+            inflater.inflate(R.layout.dialog_board_size, null)
 
-        val kakuroIntent = Intent(this, KakuroActivity::class.java)
-        val b = Bundle()
-        b.putInt("board", 1) // 1 means generated
-        kakuroIntent.putExtras(b)
-        startActivity(kakuroIntent)
+        alert.setView(view)
+        val dialog = alert.create()
+
+        val button1: Button =
+            view.findViewById<View>(R.id.button3x3) as Button
+        val button2: Button =
+            view.findViewById<View>(R.id.button5x5) as Button
+        val button3: Button =
+            view.findViewById<View>(R.id.button8x8) as Button
+        button1.setOnClickListener { chosenSize(dialog, 3) }
+        button2.setOnClickListener { chosenSize(dialog, 5) }
+        button3.setOnClickListener { chosenSize(dialog, 9) }
+
+        dialog.show()
     }
 
     fun onClickFromPhoto(v: View) {
@@ -93,7 +105,13 @@ class MainActivity : AppCompatActivity() {
                         database.insertDataBoard(row, col, 1, cell.value, 0) // 1 - value
                     }
                     is KakuroCellHint -> {
-                        database.insertDataBoard(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
+                        database.insertDataBoard(
+                            row,
+                            col,
+                            2,
+                            cell.hintRight,
+                            cell.hintDown
+                        ) // 2 - hint
                     }
                 }
             }
@@ -116,7 +134,22 @@ class MainActivity : AppCompatActivity() {
         cursor.close()
     }
 
+    private fun chosenSize(dialog: AlertDialog, size: Int) {
+        val board = boardGenerator.generate(size)
+        database.clearData()
+        database.insertDataGeneral(board.size, board.size, 0)
+        insertToDb(board)
+
+        val kakuroIntent = Intent(this, KakuroActivity::class.java)
+        val b = Bundle()
+        b.putInt("board", 1) // 1 means generated
+        kakuroIntent.putExtras(b)
+        startActivity(kakuroIntent)
+
+        dialog.dismiss()
+    }
+
     companion object {
-        private val pickImage = 100
+        private const val pickImage = 100
     }
 }

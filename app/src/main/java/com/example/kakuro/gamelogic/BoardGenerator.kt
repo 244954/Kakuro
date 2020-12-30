@@ -8,18 +8,17 @@ class BoardGenerator {
 
     var size: Int = 0
 
-    fun generate(): Array<Array<KakuroCell?>> {
-        val random = Random.nextInt(3)
+    fun generate(size: Int): Array<Array<KakuroCell?>> {
         val board: Array<Array<KakuroCell?>>?
-        board = when (random) {
-            0-> {
+        board = when (size) {
+            3-> {
                 empty3x3Board()
             }
-            1-> {
+            5-> {
                 empty5x5Board()
             }
             else-> {
-                empty8x8Board()
+                empty9x9Board()
             }
         }
         fillRandomly(board)
@@ -80,7 +79,7 @@ class BoardGenerator {
         }
     }
 
-    private fun empty8x8Board(): Array<Array<KakuroCell?>> {
+    private fun empty9x9Board(): Array<Array<KakuroCell?>> {
         size = 9
         var row = 0
         when(Random.nextInt(3)) {

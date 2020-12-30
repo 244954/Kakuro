@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDialogFragment
+import com.example.kakuro.R
 import java.util.concurrent.TimeUnit
 
 class VictoryDialog : AppCompatDialogFragment() {
@@ -14,8 +15,8 @@ class VictoryDialog : AppCompatDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Victory!")
-            .setMessage("You have won in " + TimeUnit.MILLISECONDS.toSeconds(time) + " seconds!")
+        builder.setTitle(resources.getString(R.string.victory))
+            .setMessage(resources.getString(R.string.victoryMessage, TimeUnit.MILLISECONDS.toSeconds(time)))
         builder.setPositiveButton("OK") {dialog, which ->
             listener?.victoryAftermath()
         }

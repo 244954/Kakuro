@@ -22,4 +22,11 @@
     <string name="board12">Board 12</string>
     <string name="board13">Board 13</string>
     <string name="board14">Board 14</string>
+    <string name="chooseBoardSize">Choose size of generated board</string>
+    <string name="smallBoard" translatable="false">3x3</string>
+    <string name="mediumBoard" translatable="false">5x5</string>
+    <string name="bigBoard" translatable="false">9x9</string>
+    <string name="victory">Victory!</string>
+    <string name="victoryMessage">You have won in %1$d seconds!</string>
+    <string name="victoryOK">OK</string>
 </resources>

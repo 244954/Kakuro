@@ -21,4 +21,8 @@
     <string name="board12">Plansza12</string>
     <string name="board13">Plansza13</string>
     <string name="board14">Plansza14</string>
+    <string name="chooseBoardSize">Wybierz rozmiar wygenerowanej planszy</string>
+    <string name="victory">Zwycięstwo!</string>
+    <string name="victoryMessage">Wygrałeś w %1$d sekund!</string>
+    <string name="victoryOK">OK</string>
 </resources>
