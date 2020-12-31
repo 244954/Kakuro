@@ -13,20 +13,33 @@ class KakuroGame(size: Int) {
     private var timePassed: Long = 0
 
     private lateinit var board: KakuroBoardModel
+    private lateinit var solver: BacktrackingSolver
 
     constructor(size: Int, values: Array<Array<Int>>) : this(size) { // constructor for simplified representation
         board = KakuroBoardModel(size, values)
+
+        val newBoardForSolver = board.deepCopy()
+        newBoardForSolver.cleanBoard()
+        solver = BacktrackingSolver(newBoardForSolver)
+        solver.solve()
+
         selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
         cellsLiveData.postValue(board.board)
     }
 
     constructor(size: Int, startedBoard: Array<Array<KakuroCell?>>) : this(size) { // constructor for saved games
         board = KakuroBoardModel(size, startedBoard)
+
+        val newBoardForSolver = board.deepCopy()
+        newBoardForSolver.cleanBoard()
+        solver = BacktrackingSolver(newBoardForSolver)
+        solver.solve()
+
         selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
         cellsLiveData.postValue(board.board)
     }
 
-    fun handleInput(number: Int) : Boolean { // returns whether kakuro is finished
+    fun isGameFinishedAndHandleInput(number: Int) : Boolean { // returns whether kakuro is finished
         if ( selectedRow == -1 || selectedCol == -1) return false
 
         val cell = board.getCell(selectedRow, selectedCol) as KakuroCellValue
@@ -42,14 +55,20 @@ class KakuroGame(size: Int) {
     }
 
     fun solvePuzzle() {
-        val solver = BacktrackingSolver(board)
-        solver.solve()
+        board = solver.getBoard().deepCopy()
         cellsLiveData.postValue(board.board)
     }
 
-    fun numberOfSolutions() {
-        val solver = BacktrackingSolver(board)
-        solver.manySolutions()
+    fun clearBoard() {
+        board.cleanBoard()
+        cellsLiveData.postValue(board.board)
+    }
+
+    fun giveHint() {
+        val coords = board.cellWithMostFilledNeighbours()
+        val value = solver.getCellValue(coords.first, coords.second)
+        board.setCell(coords.first, coords.second, value)
+        cellsLiveData.postValue(board.board)
     }
 
     fun updateTime(timePassed: Long) {

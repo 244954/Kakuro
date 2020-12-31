@@ -71,7 +71,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             buttonSix, buttonSeven, buttonEight, buttonNine)
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
-                if (viewModel.kakuroGame.handleInput(index + 1)) {
+                if (viewModel.kakuroGame.isGameFinishedAndHandleInput(index + 1)) { // if game is won
                     val dialog = VictoryDialog()
                     dialog.putTime(SystemClock.elapsedRealtime() - chronometer!!.base)
                     chronometer?.stop()
@@ -80,9 +80,16 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             }
         }
 
-        buttonSolve.setOnClickListener {
-            // viewModel.kakuroGame.numberOfSolutions()
+        solveButton.setOnClickListener {
             viewModel.kakuroGame.solvePuzzle()
+        }
+        hintButton.setOnClickListener {
+            // make some sort of counter
+            viewModel.kakuroGame.giveHint()
+        }
+        clearButton.setOnClickListener {
+            // dialog with confirmation
+            viewModel.kakuroGame.clearBoard()
         }
     }
 

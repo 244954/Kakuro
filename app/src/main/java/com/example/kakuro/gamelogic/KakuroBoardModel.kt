@@ -57,6 +57,56 @@ class KakuroBoardModel(val size: Int) {
         return KakuroBoardModel(size, newBoard)
     }
 
+    fun cleanBoard() {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = board[row][col]!!
+                if (cell is KakuroCellValue) {
+                    cell.value = 0
+                    cell.wrongCol = false
+                    cell.wrongRow = false
+                    cell.candidates = emptyArray()
+                }
+            }
+        }
+    }
+
+    fun cellWithMostFilledNeighbours(): Pair<Int, Int> {
+        var maxRow = -1
+        var maxCol = -1
+        var maxNeighbours = -1f
+        var maxFilledNeighbours = 0f
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = board[row][col]!!
+                if (cell is KakuroCellValue && cell.value == 0) { // consider empty value cells
+                    var neighbours = 0f
+                    var filledNeighbours = 0f
+                    for (i in -1..1) {
+                        for (j in -1..1) { // all neigbouring cells
+                            if (row + i in 0 until size // if in range
+                                && col + j in 0 until size
+                                && board[row + i][col + j] is KakuroCellValue) { // if are also value cells
+                                    neighbours += 1f
+                                    if ((board[row + i][col + j] as KakuroCellValue).value != 0) { // is filled
+                                        filledNeighbours += 1f
+                                    }
+                            }
+                        }
+                    }
+                    if (neighbours != 0f // can't happen, but just to be safe
+                        && filledNeighbours / neighbours >= maxFilledNeighbours / maxNeighbours) {
+                            maxRow = row
+                            maxCol = col
+                            maxNeighbours = neighbours
+                            maxFilledNeighbours = filledNeighbours
+                    }
+                }
+            }
+        }
+        return Pair(maxRow, maxCol)
+    }
+
     fun getCell(row: Int, col: Int): KakuroCell? {
         /*
         if (board[row][col] is KakuroCellValue)

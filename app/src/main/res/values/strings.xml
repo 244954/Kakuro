@@ -29,4 +29,7 @@
     <string name="victory">Victory!</string>
     <string name="victoryMessage">You have won in %1$d seconds!</string>
     <string name="victoryOK">OK</string>
+    <string name="solveButton">Solve</string>
+    <string name="hintButton">Hint</string>
+    <string name="clearButton">Clear</string>
 </resources>

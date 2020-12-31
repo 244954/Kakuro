@@ -55,6 +55,7 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
         var maxRow = -1
         var maxCol = -1
         var maxVal = 0
+        var value = 0
         for (row in 0 until size) {
             for (col in 0 until size) {
                 if (posBoard[row][col].isNotEmpty()) {
@@ -62,11 +63,25 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
                         maxRow = row
                         maxCol = col
                         maxVal = posBoard[row][col].size
+                        value = (board[row][col] as KakuroCellValue).value
                     }
                 }
             }
         }
-        return Triple(maxRow, maxCol, maxVal)
+        return Triple(maxRow, maxCol, value)
+    }
+
+    fun getCellValue(row: Int, col: Int): Int {
+        val cell = model.getCell(row, col)
+        return if (cell != null && cell is KakuroCellValue) {
+            cell.value
+        } else {
+            0
+        }
+    }
+
+    fun getBoard(): KakuroBoardModel {
+        return model
     }
 
     private fun calcAllPossibleValuesAndGiveIds() {
@@ -117,6 +132,8 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
     }
 
     private fun backtrackingAlgorithmMoreSolutions(): Boolean {
+        var firstSolution: Tiles? = null
+
         val stack: Stack<Tiles> = Stack()
         var currentState = tiles
         var currentCellId = 0
@@ -137,11 +154,13 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
                 else {
                     correctSolutions ++
                     if (correctSolutions > 1) {
+                        applyCalculatedResult(firstSolution!!) // apply first solution found
                         return true
                     }
                     if (currentState.lastSolution(lookup)) { // we reached the end
                         return false
                     }
+                    firstSolution = currentState.copy()
                     currentState = stack.pop()
                     currentCellId = currentState.prevAvailableIndex(currentCellId) // makeshift solution, we process them in order of their placement
                     currentValue = currentState[currentCellId]

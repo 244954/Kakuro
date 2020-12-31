@@ -39,7 +39,9 @@
                 android:text="3">
         </Button>
 
-        <Button/>
+        <Button
+                android:id="@+id/hintButton"
+                android:text="@string/hintButton" />
 
         <Button
                 android:id="@+id/buttonFour"
@@ -63,11 +65,10 @@
         </Button>
 
         <Button
-                android:id="@+id/buttonSolve"
+                android:id="@+id/solveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Solve">
-        </Button>
+                android:text="@string/solveButton"></Button>
 
         <Button
                 android:id="@+id/buttonSeven"
@@ -90,7 +91,9 @@
                 android:text="9">
         </Button>
 
-        <Button/>
+        <Button
+                android:id="@+id/clearButton"
+                android:text="@string/clearButton" />
 
     </GridLayout>
 </RelativeLayout>
