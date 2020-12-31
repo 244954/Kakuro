@@ -1,101 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
         tools:context=".view.KakuroActivity">
 
     <com.example.kakuro.view.KakuroBoardView android:id="@+id/kakuroBoard"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="match_parent"
-                                             android:layout_alignParentStart="true"/>
-    <GridLayout android:id="@+id/numberGrid"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:rowCount="4"
-                android:columnCount="3"
-                android:layout_toEndOf="@+id/kakuroBoard"
-                android:layout_centerVertical="true"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"/>
+
+    <androidx.gridlayout.widget.GridLayout
+            android:id="@+id/numberGrid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toEndOf="@+id/kakuroBoard"
+            app:rowCount="4"
+            app:columnCount="3">
+
         <Button
                 android:id="@+id/buttonOne"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:text="1"
-                android:layout_row="0"
-                android:layout_column="0">
-        </Button>
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1" />
 
         <Button
                 android:id="@+id/buttonTwo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2">
+                android:text="2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/buttonThree"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="3">
+                android:text="3"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/buttonFour"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="4">
+                android:text="4"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/buttonFive"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5">
+                android:text="5"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/buttonSix"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="6">
+                android:text="6"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/buttonSeven"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="7">
-        </Button>
+                android:text="7"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1" />
 
         <Button
                 android:id="@+id/buttonEight"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="8">
+                android:text="8"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/buttonNine"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="9">
+                android:text="9"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
         </Button>
 
         <Button
                 android:id="@+id/hintButton"
-                android:text="@string/hintButton" />
+                android:text="@string/hintButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
+        </Button>
 
         <Button
                 android:id="@+id/solveButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/solveButton"></Button>
+                android:text="@string/solveButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
+        </Button>
 
         <Button
                 android:id="@+id/clearButton"
-                android:text="@string/clearButton" />
+                android:text="@string/clearButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_gravity="fill"
+                app:layout_rowWeight="1"
+                app:layout_columnWeight="1">
+        </Button>
 
-    </GridLayout>
+    </androidx.gridlayout.widget.GridLayout>
 </RelativeLayout>

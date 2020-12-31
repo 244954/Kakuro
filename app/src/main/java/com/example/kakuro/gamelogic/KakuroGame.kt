@@ -65,9 +65,13 @@ class KakuroGame(size: Int) {
     }
 
     fun giveHint() {
-        val coords = board.cellWithMostFilledNeighbours()
+        var coords = board.checkForMistakenCells(solver.getBoard())
+        if (coords == null) {
+            coords = board.cellWithMostFilledNeighbours()
+        }
         val value = solver.getCellValue(coords.first, coords.second)
         board.setCell(coords.first, coords.second, value)
+        updateValidation(coords.first, coords.second, board)
         cellsLiveData.postValue(board.board)
     }
 

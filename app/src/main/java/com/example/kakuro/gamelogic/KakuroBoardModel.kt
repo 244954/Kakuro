@@ -71,6 +71,21 @@ class KakuroBoardModel(val size: Int) {
         }
     }
 
+    fun checkForMistakenCells(solvedBoard: KakuroBoardModel): Pair<Int, Int>? {
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                val cell = board[row][col]!!
+                val corrCell = solvedBoard.getCell(row, col)
+                if (cell is KakuroCellValue && corrCell is KakuroCellValue) {
+                    if (cell.value != 0 && cell.value != corrCell.value) {
+                        return Pair(row, col)
+                    }
+                }
+            }
+        }
+        return null
+    }
+
     fun cellWithMostFilledNeighbours(): Pair<Int, Int> {
         var maxRow = -1
         var maxCol = -1
