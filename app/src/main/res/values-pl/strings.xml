@@ -28,4 +28,7 @@
     <string name="hintButton">Podpowiedź</string>
     <string name="solveButton">Rozwiąż</string>
     <string name="clearButton">Wyczyść</string>
+    <string name="clearBoardDialogText">Czy na pewno chcesz wyczyścić planszę?</string>
+    <string name="yes">Tak</string>
+    <string name="no">Nie</string>
 </resources>

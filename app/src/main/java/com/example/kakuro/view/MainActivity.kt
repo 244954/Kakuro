@@ -82,39 +82,16 @@ class MainActivity : AppCompatActivity() {
             image = MediaStore.Images.Media.getBitmap(this.contentResolver, imageUri)
 
             val board = openCVConverter.processImage(image)
+            val boardModel = KakuroBoardModel(board.size, board)
             database.clearData()
-            database.insertDataGeneral(board.size, board.size, 0)
-            insertToDb(board)
+            database.insertDataGeneral(board.size, board.size, 0, 3)
+            boardModel.insertToDb(database)
 
             val kakuroIntent = Intent(this, KakuroActivity::class.java)
             val b = Bundle()
             b.putInt("board", 2) // 2 means scanned
             kakuroIntent.putExtras(b)
             startActivity(kakuroIntent)
-        }
-    }
-
-    private fun insertToDb(board: Array<Array<KakuroCell?>>) {
-        for (row in board.indices) {
-            for (col in board.indices) {
-                when(val cell = board[row][col]) {
-                    is KakuroCellBlank -> {
-                        database.insertDataBoard(row, col, 0, 0, 0) // 0 - blank
-                    }
-                    is KakuroCellValue -> {
-                        database.insertDataBoard(row, col, 1, cell.value, 0) // 1 - value
-                    }
-                    is KakuroCellHint -> {
-                        database.insertDataBoard(
-                            row,
-                            col,
-                            2,
-                            cell.hintRight,
-                            cell.hintDown
-                        ) // 2 - hint
-                    }
-                }
-            }
         }
     }
 
@@ -136,9 +113,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun chosenSize(dialog: AlertDialog, size: Int) {
         val board = boardGenerator.generate(size)
+        val boardModel = KakuroBoardModel(board.size, board)
         database.clearData()
-        database.insertDataGeneral(board.size, board.size, 0)
-        insertToDb(board)
+        database.insertDataGeneral(board.size, board.size, 0, 3)
+        boardModel.insertToDb(database)
 
         val kakuroIntent = Intent(this, KakuroActivity::class.java)
         val b = Bundle()

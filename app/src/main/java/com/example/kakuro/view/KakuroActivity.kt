@@ -1,5 +1,7 @@
 package com.example.kakuro.view
 
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.Menu
@@ -49,33 +51,34 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             1 -> { // generated
                 val boardValues = getBoardFromDb()
                 viewModel.startViewModelFromSavedState(size, boardValues)
-                //boardValues = getBoardFromFile(0)
             }
             2 -> { // scanned
                 val boardValues = getBoardFromDb()
                 viewModel.startViewModelFromSavedState(size, boardValues)
-                // scan
-                //boardValues = getBoardFromFile(0)
             }
             else -> {
-                val boardValues = getBoardFromFile(boardNumber)
-                viewModel.startViewModel(size, boardValues)
+                val boardValues = getBoardFromDb()
+                viewModel.startViewModelFromSavedState(size, boardValues)
             }
         }
 
         kakuroBoard.setSize(size) // set size for Kakuro View
-        viewModel.kakuroGame.selectedCellLiveData.observe(this, Observer { updateSelectedCellUI(it)  })
+        viewModel.kakuroGame.selectedCellLiveData.observe(
+            this,
+            Observer { updateSelectedCellUI(it) })
         viewModel.kakuroGame.cellsLiveData.observe(this, Observer { updateCells(it) })
 
-        val buttons = listOf(buttonOne, buttonTwo, buttonThree, buttonFour, buttonFive,
-            buttonSix, buttonSeven, buttonEight, buttonNine)
+        val buttons = listOf(
+            buttonOne, buttonTwo, buttonThree, buttonFour, buttonFive,
+            buttonSix, buttonSeven, buttonEight, buttonNine
+        )
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 if (viewModel.kakuroGame.isGameFinishedAndHandleInput(index + 1)) { // if game is won
                     val dialog = VictoryDialog()
                     dialog.putTime(SystemClock.elapsedRealtime() - chronometer!!.base)
                     chronometer?.stop()
-                    dialog.show(supportFragmentManager,"example") // dialog
+                    dialog.show(supportFragmentManager, "example") // dialog
                 }
             }
         }
@@ -83,21 +86,43 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         solveButton.setOnClickListener {
             viewModel.kakuroGame.solvePuzzle()
         }
+
         hintButton.setOnClickListener {
             // make some sort of counter
             viewModel.kakuroGame.giveHint()
         }
+
         clearButton.setOnClickListener {
-            // dialog with confirmation
-            viewModel.kakuroGame.clearBoard()
+            val dialogClickListener =
+                DialogInterface.OnClickListener { dialog, which ->
+                    when (which) {
+                        DialogInterface.BUTTON_POSITIVE -> {
+                            viewModel.kakuroGame.clearBoard()
+                            dialog.dismiss()
+                        }
+                        DialogInterface.BUTTON_NEGATIVE -> {
+                            dialog.dismiss()
+                        }
+                    }
+                }
+
+            val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+            builder.setMessage(resources.getString(R.string.clearBoardDialogText))
+                .setPositiveButton(resources.getString(R.string.yes), dialogClickListener)
+                .setNegativeButton(resources.getString(R.string.no), dialogClickListener).show()
         }
     }
 
     override fun onDestroy() {
         if (!gameIsFinished) { // inelegant but whatever
             database.clearData()
-            database.insertDataGeneral(size, size, SystemClock.elapsedRealtime() - chronometer!!.base)
-            insertToDb() // insert to table 2
+            database.insertDataGeneral(
+                size,
+                size,
+                SystemClock.elapsedRealtime() - chronometer!!.base,
+                3 // to be updated
+            )
+            viewModel.kakuroGame.board.insertToDb(database)
         }
 
         super.onDestroy()
@@ -107,21 +132,11 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         super.onPause()
 
         viewModel.kakuroGame.updateTime(SystemClock.elapsedRealtime() - chronometer!!.base)
-        //stopwatch.stop()
         chronometer!!.stop()
     }
 
     override fun onResume() {
         super.onResume()
-
-        /*
-        if (stopwatch.wasStopped()) {
-            stopwatch.startWithTime(viewModel.kakuroGame.getTime())
-        }
-        else {
-            stopwatch.start()
-        }
-        */
 
         chronometer?.base = SystemClock.elapsedRealtime() - viewModel.kakuroGame.getTime()
         chronometer?.start()
@@ -133,18 +148,6 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
 
         counter = menu?.findItem(R.id.counter)
 
-        /*
-        Timer().scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                val time = stopwatch.getElapsedTime()
-                val ms = (TimeUnit.MILLISECONDS.toMinutes(time) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(time))).toString() +
-                        ":"+ (TimeUnit.MILLISECONDS.toSeconds(time) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(time))).toString()
-                this@KakuroActivity.runOnUiThread(java.lang.Runnable {
-                    counter?.title = ms
-                })
-            }
-        }, 0, 500) // every half a second
-        */
         chronometer = counter?.actionView as Chronometer
         chronometer?.base = SystemClock.elapsedRealtime() - timePassed
         chronometer?.start()
@@ -159,45 +162,6 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun getBoardFromFile(nr: Int) : Array<Array<Int>> {
-        val text = application.assets.open("board$nr").bufferedReader().use {
-            it.readText()
-        }
-
-        var lines = text.lines()
-        size = lines[0].toInt()
-        lines = lines.drop(1)
-
-        val arr = Array(lines.size) { Array(5) { 0 }}
-
-        for (linenr in 0 until lines.size) {
-            val line = lines[linenr].split(" ")
-            for (number in 0 until line.size) {
-                arr[linenr][number] = line[number].toInt()
-            }
-        }
-
-        return arr
-    }
-
-    private fun insertToDb() {
-        for (row in 0 until size) {
-            for (col in 0 until size) {
-                when(val cell = viewModel.kakuroGame.getCell(row, col)) {
-                    is KakuroCellBlank -> {
-                        database.insertDataBoard(row, col, 0, 0, 0) // 0 - blank
-                    }
-                    is KakuroCellValue -> {
-                        database.insertDataBoard(row, col, 1, cell.value, 0) // 1 - value
-                    }
-                    is KakuroCellHint -> {
-                        database.insertDataBoard(row, col, 2, cell.hintRight, cell.hintDown) // 2 - hint
-                    }
-                }
-            }
-        }
     }
 
     private fun getBoardFromDb() : Array<Array<KakuroCell?>> {
@@ -231,7 +195,11 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
                     }
                     2 -> {
                         // hint
-                        board[row][col] = KakuroCellHint(row, col, cursor2.getString(4).toInt(), cursor2.getString(5).toInt())
+                        board[row][col] = KakuroCellHint(
+                            row, col, cursor2.getString(4).toInt(), cursor2.getString(
+                                5
+                            ).toInt()
+                        )
                     }
                 }
             }

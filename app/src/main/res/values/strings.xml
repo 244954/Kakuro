@@ -32,4 +32,7 @@
     <string name="solveButton">Solve</string>
     <string name="hintButton">Hint</string>
     <string name="clearButton">Clear</string>
+    <string name="clearBoardDialogText">Do you really want to clear the board?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 </resources>

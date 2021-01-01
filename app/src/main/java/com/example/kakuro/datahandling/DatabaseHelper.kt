@@ -10,13 +10,14 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
 
 
     init {
-        //val db = this.writableDatabase
+        // val db = this.writableDatabase // after changing db
+        // onCreate(db)
     }
 
 
 
     override fun onCreate(db: SQLiteDatabase?) {
-        db?.execSQL("create table " + TableName1 + " (" + Tab1Col1 + " INTEGER PRIMARY KEY AUTOINCREMENT," + Tab1Col2 + " INTEGER," + Tab1Col3 + " INTEGER," + Tab1Col4 + " INTEGER)")
+        db?.execSQL("create table " + TableName1 + " (" + Tab1Col1 + " INTEGER PRIMARY KEY AUTOINCREMENT," + Tab1Col2 + " INTEGER," + Tab1Col3 + " INTEGER," + Tab1Col4 + " INTEGER," + Tab1Col5 + " INTEGER)")
         db?.execSQL("create table " + TableName2 + " (" + Tab2Col1 + " INTEGER PRIMARY KEY AUTOINCREMENT," + Tab2Col2 + " INTEGER," + Tab2Col3 + " INTEGER," + Tab2Col4 + " INTEGER," + Tab2Col5 + " INTEGER," + Tab2Col6 +" INTEGER)")
     }
 
@@ -24,14 +25,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db?.execSQL("DROP TABLE IF EXISTS $TableName1")
         db?.execSQL("DROP TABLE IF EXISTS $TableName2")
 
+        db?.execSQL("create table " + TableName1 + " (" + Tab1Col1 + " INTEGER PRIMARY KEY AUTOINCREMENT," + Tab1Col2 + " INTEGER," + Tab1Col3 + " INTEGER," + Tab1Col4 + " INTEGER," + Tab1Col5 + " INTEGER)")
+        db?.execSQL("create table " + TableName2 + " (" + Tab2Col1 + " INTEGER PRIMARY KEY AUTOINCREMENT," + Tab2Col2 + " INTEGER," + Tab2Col3 + " INTEGER," + Tab2Col4 + " INTEGER," + Tab2Col5 + " INTEGER," + Tab2Col6 +" INTEGER)")
+
     }
 
-    fun insertDataGeneral(rows: Int, columns: Int, time: Long) : Boolean {
+    fun insertDataGeneral(rows: Int, columns: Int, time: Long, hintsLeft: Int) : Boolean {
         val db = this.writableDatabase
         val contentValues = ContentValues()
         contentValues.put(Tab1Col2, rows)
         contentValues.put(Tab1Col3, columns)
         contentValues.put(Tab1Col4, time)
+        contentValues.put(Tab1Col5, hintsLeft)
         val result = db.insert(TableName1, null, contentValues)
 
         return (result != -1L)
@@ -75,7 +80,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
     }
 
     companion object {
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3
         const val DATABASE_NAME = "Kakuro.db"
 
         const val TableName1 = "generaldata"
@@ -83,6 +88,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         const val Tab1Col2 = "Rows"
         const val Tab1Col3 = "Columns"
         const val Tab1Col4 = "Time"
+        const val Tab1Col5 = "HintsLeft"
 
         const val TableName2 = "fields"
         const val Tab2Col1 = "ID"

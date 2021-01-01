@@ -1,5 +1,7 @@
 package com.example.kakuro.gamelogic
 
+import com.example.kakuro.datahandling.DatabaseHelper
+
 /*
     [how much in a sum, how many cells, row, column, direction (0 - right, 1 - down)]
     [10, 4, 3, 2, 0]
@@ -314,6 +316,30 @@ class KakuroBoardModel(val size: Int) {
             val cell = board[row][col]!!
             if (cell is KakuroCellValue) {
                 cell.value = value
+            }
+        }
+    }
+
+    fun insertToDb(database: DatabaseHelper) {
+        for (row in board.indices) {
+            for (col in board.indices) {
+                when(val cell = board[row][col]) {
+                    is KakuroCellBlank -> {
+                        database.insertDataBoard(row, col, 0, 0, 0) // 0 - blank
+                    }
+                    is KakuroCellValue -> {
+                        database.insertDataBoard(row, col, 1, cell.value, 0) // 1 - value
+                    }
+                    is KakuroCellHint -> {
+                        database.insertDataBoard(
+                            row,
+                            col,
+                            2,
+                            cell.hintRight,
+                            cell.hintDown
+                        ) // 2 - hint
+                    }
+                }
             }
         }
     }

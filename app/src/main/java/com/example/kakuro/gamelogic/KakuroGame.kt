@@ -12,7 +12,7 @@ class KakuroGame(size: Int) {
 
     private var timePassed: Long = 0
 
-    private lateinit var board: KakuroBoardModel
+    lateinit var board: KakuroBoardModel
     private lateinit var solver: BacktrackingSolver
 
     constructor(size: Int, values: Array<Array<Int>>) : this(size) { // constructor for simplified representation
