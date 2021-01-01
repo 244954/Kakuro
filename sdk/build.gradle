@@ -114,6 +114,12 @@ android {
     }
 
     buildTypes {
+        customDebugType {
+            debuggable true
+            packagingOptions {
+                doNotStrip '**/*.so'  // controlled by OpenCV CMake scripts
+            }
+        }
         debug {
             packagingOptions {
                 doNotStrip '**/*.so'  // controlled by OpenCV CMake scripts

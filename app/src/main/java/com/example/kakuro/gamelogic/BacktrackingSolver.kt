@@ -2,6 +2,7 @@ package com.example.kakuro.gamelogic
 
 import com.example.kakuro.misc.Tiles
 import java.util.*
+import kotlin.collections.ArrayList
 
 class BacktrackingSolver(private val model: KakuroBoardModel) {
 
@@ -51,7 +52,7 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
         return false
     }
 
-    fun mostDubiousField(): Triple<Int, Int, Int> { // row, col, value
+    fun mostDubiousField(filledFields: ArrayList<Pair<Int, Int>>): Triple<Int, Int, Int> { // row, col, value
         var maxRow = -1
         var maxCol = -1
         var maxVal = 0
@@ -59,7 +60,7 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
         for (row in 0 until size) {
             for (col in 0 until size) {
                 if (posBoard[row][col].isNotEmpty()) {
-                    if (posBoard[row][col].size > maxVal) {
+                    if (posBoard[row][col].size > maxVal && isInDifferentRecord(row, col, filledFields)) {
                         maxRow = row
                         maxCol = col
                         maxVal = posBoard[row][col].size
@@ -69,6 +70,15 @@ class BacktrackingSolver(private val model: KakuroBoardModel) {
             }
         }
         return Triple(maxRow, maxCol, value)
+    }
+
+    private fun isInDifferentRecord(row: Int, col: Int, filledFields: ArrayList<Pair<Int, Int>>): Boolean{
+        for (i in filledFields) {
+           if (model.sameRowOrColumn(row, col, i.first, i.second)) {
+               return false
+           }
+        }
+        return true
     }
 
     fun getCellValue(row: Int, col: Int): Int {

@@ -344,6 +344,18 @@ class KakuroBoardModel(val size: Int) {
         }
     }
 
+    fun sameRowOrColumn(firstRow: Int, firstCol: Int, secondRow: Int, secondCol: Int): Boolean {
+        if (firstRow in 0 until size && firstCol in 0 until size && secondCol in 0 until size && secondRow in 0 until size) {
+            if (board[firstRow][firstCol] is KakuroCellValue && board[secondRow][secondCol] is KakuroCellValue) {
+                if (getRowHint(firstRow, firstCol) === getRowHint(secondRow, secondCol) ||
+                    getColumnHint(firstRow, firstCol) === getColumnHint(secondRow, secondCol)) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     fun recommendedHintsAmount(): Int{
         return when(size) {
             in 0..5 -> {

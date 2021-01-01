@@ -240,9 +240,21 @@ class BoardGenerator {
     private fun giveExtraHints(board: Array<Array<KakuroCell?>>) {
         val model = KakuroBoardModel(size, board)
         val solver = BacktrackingSolver(model.deepCopy())
+        val hintedCells = arrayListOf<Pair<Int, Int>>()
         if (solver.manySolutions()) {
-            val params = solver.mostDubiousField()
+            val params = solver.mostDubiousField(hintedCells)
             model.setCell(params.first, params.second, params.third)
+            hintedCells.add(Pair(params.first, params.second))
+        }
+        if (model.size > 7) {
+            val params = solver.mostDubiousField(hintedCells)
+            model.setCell(params.first, params.second, params.third)
+            hintedCells.add(Pair(params.first, params.second))
+        }
+        if (model.size > 12) {
+            val params = solver.mostDubiousField(hintedCells)
+            model.setCell(params.first, params.second, params.third)
+            hintedCells.add(Pair(params.first, params.second))
         }
     }
 
