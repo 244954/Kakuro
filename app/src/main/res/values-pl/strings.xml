@@ -25,10 +25,11 @@
     <string name="victory">Zwycięstwo!</string>
     <string name="victoryMessage">Wygrałeś w %1$d sekund!</string>
     <string name="victoryOK">OK</string>
-    <string name="hintButton">Podpowiedź</string>
+    <string name="hintButton">Podpowiedź (%1$d)</string>
     <string name="solveButton">Rozwiąż</string>
     <string name="clearButton">Wyczyść</string>
     <string name="clearBoardDialogText">Czy na pewno chcesz wyczyścić planszę?</string>
     <string name="yes">Tak</string>
     <string name="no">Nie</string>
+    <string name="hintsLeft">Masz jeszcze %1$d podpowiedzi do wykorzystania!</string>
 </resources>

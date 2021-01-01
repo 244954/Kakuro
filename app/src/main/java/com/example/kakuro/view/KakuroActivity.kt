@@ -7,6 +7,7 @@ import android.os.SystemClock
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Chronometer
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -30,6 +31,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
     private var gameIsFinished = false
     private var counter : MenuItem? = null
     private lateinit var database : DatabaseHelper
+    private var hintsLeft = 3
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,9 +89,30 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             viewModel.kakuroGame.solvePuzzle()
         }
 
-        hintButton.setOnClickListener {
-            // make some sort of counter
-            viewModel.kakuroGame.giveHint()
+        if (hintsLeft > 0) {
+            hintButton.setOnClickListener {
+                if (hintsLeft > 0) {
+                    hintsLeft -= 1
+                    viewModel.kakuroGame.giveHint()
+                    hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+
+                    val toast = Toast.makeText(this, resources.getString(R.string.hintsLeft, hintsLeft), Toast.LENGTH_SHORT)
+                    toast.show()
+                    if (hintsLeft == 0) {
+                        hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+                        hintButton.isEnabled = false
+                    }
+                }
+                else {
+                    hintButton.isEnabled = false
+                }
+            }
+            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+            hintButton.isEnabled = true
+        }
+        else {
+            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+            hintButton.isEnabled = false
         }
 
         clearButton.setOnClickListener {
@@ -98,6 +121,9 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
                     when (which) {
                         DialogInterface.BUTTON_POSITIVE -> {
                             viewModel.kakuroGame.clearBoard()
+                            hintsLeft = viewModel.kakuroGame.board.recommendedHintsAmount()
+                            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+                            hintButton.isEnabled = true
                             dialog.dismiss()
                         }
                         DialogInterface.BUTTON_NEGATIVE -> {
@@ -120,7 +146,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
                 size,
                 size,
                 SystemClock.elapsedRealtime() - chronometer!!.base,
-                3 // to be updated
+                hintsLeft // to be updated
             )
             viewModel.kakuroGame.board.insertToDb(database)
         }
@@ -171,6 +197,7 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             cursor.moveToFirst()
             size = cursor.getString(1).toInt()
             timePassed = cursor.getString(3).toLong()
+            hintsLeft = cursor.getString(4).toInt()
         }
         cursor.close()
 

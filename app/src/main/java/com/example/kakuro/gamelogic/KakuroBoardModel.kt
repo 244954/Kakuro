@@ -343,4 +343,21 @@ class KakuroBoardModel(val size: Int) {
             }
         }
     }
+
+    fun recommendedHintsAmount(): Int{
+        return when(size) {
+            in 0..5 -> {
+                1
+            }
+            in 6..8 -> {
+                2
+            }
+            in 9..10 -> {
+                3
+            }
+            else -> {
+                4
+            }
+        }
+    }
 }

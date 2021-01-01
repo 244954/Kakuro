@@ -36,7 +36,7 @@ class SelectBoardActivity : AppCompatActivity() {
         val simplifiedBoard = getBoardFromFile(selectedBoard)
         val boardModel = KakuroBoardModel(size, simplifiedBoard)
         database.clearData()
-        database.insertDataGeneral(size, size, 0, 3)
+        database.insertDataGeneral(size, size, 0, boardModel.recommendedHintsAmount())
         boardModel.insertToDb(database)
         val kakuroIntent = Intent(this, KakuroActivity::class.java)
         val b = Bundle()

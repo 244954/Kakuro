@@ -30,9 +30,10 @@
     <string name="victoryMessage">You have won in %1$d seconds!</string>
     <string name="victoryOK">OK</string>
     <string name="solveButton">Solve</string>
-    <string name="hintButton">Hint</string>
+    <string name="hintButton">Hint (%1$d)</string>
     <string name="clearButton">Clear</string>
     <string name="clearBoardDialogText">Do you really want to clear the board?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="hintsLeft">You have now %1$d hints left to use!</string>
 </resources>

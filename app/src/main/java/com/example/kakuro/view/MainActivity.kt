@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
             val board = openCVConverter.processImage(image)
             val boardModel = KakuroBoardModel(board.size, board)
             database.clearData()
-            database.insertDataGeneral(board.size, board.size, 0, 3)
+            database.insertDataGeneral(board.size, board.size, 0, boardModel.recommendedHintsAmount())
             boardModel.insertToDb(database)
 
             val kakuroIntent = Intent(this, KakuroActivity::class.java)
@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         val board = boardGenerator.generate(size)
         val boardModel = KakuroBoardModel(board.size, board)
         database.clearData()
-        database.insertDataGeneral(board.size, board.size, 0, 3)
+        database.insertDataGeneral(board.size, board.size, 0, boardModel.recommendedHintsAmount())
         boardModel.insertToDb(database)
 
         val kakuroIntent = Intent(this, KakuroActivity::class.java)
