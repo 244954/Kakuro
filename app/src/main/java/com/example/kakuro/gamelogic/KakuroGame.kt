@@ -14,26 +14,31 @@ class KakuroGame(size: Int) {
 
     lateinit var board: KakuroBoardModel
     private lateinit var solver: BacktrackingSolver
+    var isBoardCorrect = true
 
     constructor(size: Int, values: Array<Array<Int>>) : this(size) { // constructor for simplified representation
         board = KakuroBoardModel(size, values)
 
-        val newBoardForSolver = board.deepCopy()
-        newBoardForSolver.cleanBoard()
-        solver = BacktrackingSolver(newBoardForSolver)
-        solver.solve()
-
-        selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
-        cellsLiveData.postValue(board.board)
+        initialization()
     }
 
     constructor(size: Int, startedBoard: Array<Array<KakuroCell?>>) : this(size) { // constructor for saved games
         board = KakuroBoardModel(size, startedBoard)
 
+        initialization()
+    }
+
+    private fun initialization() {
         val newBoardForSolver = board.deepCopy()
         newBoardForSolver.cleanBoard()
-        solver = BacktrackingSolver(newBoardForSolver)
-        solver.solve()
+        if (board.isBoardCorrect()) {
+            solver = BacktrackingSolver(newBoardForSolver)
+            solver.solve()
+            isBoardCorrect = true
+        }
+        else {
+            isBoardCorrect = false
+        }
 
         selectedCellLiveData.postValue(Pair(selectedRow, selectedCol))
         cellsLiveData.postValue(board.board)

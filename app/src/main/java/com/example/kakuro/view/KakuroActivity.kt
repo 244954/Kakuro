@@ -85,36 +85,6 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             }
         }
 
-        solveButton.setOnClickListener {
-            viewModel.kakuroGame.solvePuzzle()
-        }
-
-        if (hintsLeft > 0) {
-            hintButton.setOnClickListener {
-                if (hintsLeft > 0) {
-                    hintsLeft -= 1
-                    viewModel.kakuroGame.giveHint()
-                    hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
-
-                    val toast = Toast.makeText(this, resources.getString(R.string.hintsLeft, hintsLeft), Toast.LENGTH_SHORT)
-                    toast.show()
-                    if (hintsLeft == 0) {
-                        hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
-                        hintButton.isEnabled = false
-                    }
-                }
-                else {
-                    hintButton.isEnabled = false
-                }
-            }
-            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
-            hintButton.isEnabled = true
-        }
-        else {
-            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
-            hintButton.isEnabled = false
-        }
-
         clearButton.setOnClickListener {
             val dialogClickListener =
                 DialogInterface.OnClickListener { dialog, which ->
@@ -122,8 +92,11 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
                         DialogInterface.BUTTON_POSITIVE -> {
                             viewModel.kakuroGame.clearBoard()
                             hintsLeft = viewModel.kakuroGame.board.recommendedHintsAmount()
-                            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
-                            hintButton.isEnabled = true
+                            if (viewModel.kakuroGame.isBoardCorrect) {
+                                hintButton.text =
+                                    resources.getString(R.string.hintButton, hintsLeft)
+                                hintButton.isEnabled = true
+                            }
                             dialog.dismiss()
                         }
                         DialogInterface.BUTTON_NEGATIVE -> {
@@ -136,6 +109,50 @@ class KakuroActivity : AppCompatActivity(), KakuroBoardView.OnTouchListener, Vic
             builder.setMessage(resources.getString(R.string.clearBoardDialogText))
                 .setPositiveButton(resources.getString(R.string.yes), dialogClickListener)
                 .setNegativeButton(resources.getString(R.string.no), dialogClickListener).show()
+        }
+
+        if (viewModel.kakuroGame.isBoardCorrect) { // there is solution
+            solveButton.setOnClickListener {
+                viewModel.kakuroGame.solvePuzzle()
+            }
+
+            if (hintsLeft > 0) {
+                hintButton.setOnClickListener {
+                    if (hintsLeft > 0) {
+                        hintsLeft -= 1
+                        viewModel.kakuroGame.giveHint()
+                        hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+
+                        val toast = Toast.makeText(
+                            this,
+                            resources.getString(R.string.hintsLeft, hintsLeft),
+                            Toast.LENGTH_SHORT
+                        )
+                        toast.show()
+                        if (hintsLeft == 0) {
+                            hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+                            hintButton.isEnabled = false
+                        }
+                    } else {
+                        hintButton.isEnabled = false
+                    }
+                }
+                hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+                hintButton.isEnabled = true
+            } else {
+                hintButton.text = resources.getString(R.string.hintButton, hintsLeft)
+                hintButton.isEnabled = false
+            }
+        }
+        else { // no solution found
+            solveButton.isEnabled = false
+            hintButton.isEnabled = false
+            val toast = Toast.makeText(
+                this,
+                resources.getString(R.string.noSolution),
+                Toast.LENGTH_SHORT
+            )
+            toast.show()
         }
     }
 

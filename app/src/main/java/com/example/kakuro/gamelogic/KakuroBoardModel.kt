@@ -356,6 +356,21 @@ class KakuroBoardModel(val size: Int) {
         return false
     }
 
+    fun isBoardCorrect(): Boolean{
+        var valueCellsCount = 0
+        for (row in 0 until size) {
+            for (col in 0 until size) {
+                if (board[row][col] is KakuroCellValue) {
+                    valueCellsCount ++
+                    if (getRowHint(row, col) == null || getColumnHint(row, col) == null) {
+                        return false
+                    }
+                }
+            }
+        }
+        return valueCellsCount > 0
+    }
+
     fun recommendedHintsAmount(): Int{
         return when(size) {
             in 0..5 -> {

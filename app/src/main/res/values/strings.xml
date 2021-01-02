@@ -36,4 +36,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="hintsLeft">You have now %1$d hints left to use!</string>
+    <string name="noSolution">No solution could be found for given board!</string>
 </resources>
