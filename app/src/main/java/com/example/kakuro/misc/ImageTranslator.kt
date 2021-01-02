@@ -420,12 +420,17 @@ class ImageTranslator(private val context: AppCompatActivity) {
 
                     // filter detected rectangles with digits on them
 
+                    // for tests
+                    // val bitmap = Bitmap.createBitmap(color.cols(), color.rows(), Bitmap.Config.ARGB_8888)
+                    // Utils.matToBitmap(color, bitmap)
                     for (k in contours.indices) {
                         if (boundRect!![k]!!.width in (imageSize.width / 70).toInt()..(imageSize.width / 2).toInt()
                             && boundRect[k]!!.height in (imageSize.height / 70).toInt()..(imageSize.height / 2).toInt()) { // delete too small and too big
                             addBoundRect(boundRectWithDigits, boundRect[k]!!)
                         }
+                        // Imgproc.rectangle(color, boundRect[k], Scalar(0.0, 120.0, 120.0), 2)
                     }
+                    // Utils.matToBitmap(color, bitmap)
 
                     if (boundRectWithDigits.isEmpty()) { // it has no hints, its blank tile
                         board[i][j] = KakuroCellBlank(i, j)
